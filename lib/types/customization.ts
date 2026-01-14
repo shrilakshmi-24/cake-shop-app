@@ -14,7 +14,8 @@ export interface CakeConfig {
     color: CakeColor;
     design: string;
     message: string;
-    customImage?: string; // URL from Cloudinary
+    notes?: string; // Additional Guide / Instructions
+    printImageUrl?: string; // URL from Cloudinary
 }
 
 export const DEFAULT_CONFIG: CakeConfig = {

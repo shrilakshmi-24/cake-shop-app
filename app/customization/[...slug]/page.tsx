@@ -59,6 +59,9 @@ export default async function CustomizationPage({
                 message: ''
             };
         }
+    } else if (slug && slug.length === 1) {
+        // Just the ID - Fetch defaults
+        cakeId = slug[0];
     }
 
     // Fetch Cake if ID exists
@@ -66,6 +69,16 @@ export default async function CustomizationPage({
         await dbConnect();
         try {
             fetchedCake = await Cake.findById(cakeId).lean();
+            // If we have just an ID (length 1), apply defaults from DB
+            if (fetchedCake && slug.length === 1) {
+                config = {
+                    shape: (fetchedCake.allowedShapes[0] || 'round') as CakeShape,
+                    flavor: (fetchedCake.allowedFlavors[0] || 'vanilla') as CakeFlavor,
+                    color: (fetchedCake.allowedColors[0] || 'white') as CakeColor,
+                    design: (fetchedCake.allowedDesigns[0] || 'classic') as CakeDesign,
+                    message: ''
+                };
+            }
         } catch (e) { }
     }
 

@@ -23,18 +23,19 @@ export async function createOrder(formData: FormData) {
         const color = formData.get('color') as string;
         const design = formData.get('design') as string;
         const message = formData.get('message') as string;
+        const notes = formData.get('notes') as string;
         const price = parseFloat(formData.get('price') as string);
         const cakeId = formData.get('cakeId') as string;
 
         // Use provided cakeId or fallback to dummy (though in new flow cakeId should always be present)
         const targetCakeId = cakeId || '000000000000000000000000';
 
-        let customImageUrl;
-        const imageFile = formData.get('customImage') as File;
+        let printImageUrl;
+        const imageFile = formData.get('printImageUrl') as File;
 
         if (imageFile && imageFile.size > 0) {
             try {
-                customImageUrl = await uploadImage(imageFile);
+                printImageUrl = await uploadImage(imageFile);
             } catch (e) {
                 console.error('User image upload failed', e);
                 return { success: false, error: 'Failed to upload custom image' };
@@ -47,7 +48,8 @@ export async function createOrder(formData: FormData) {
             color: color as any,
             design: design as any,
             message,
-            customImage: customImageUrl
+            notes,
+            printImageUrl: printImageUrl
         };
 
         // Create the order

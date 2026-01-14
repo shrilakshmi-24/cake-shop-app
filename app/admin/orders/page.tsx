@@ -63,10 +63,10 @@ export default async function AdminOrdersPage() {
                                         </td>
                                         <td className="px-8 py-5 text-sm text-gray-600">
                                             <div className="flex items-center gap-3">
-                                                {order.customizationSnapshot.customImage && (
-                                                    <Link href={order.customizationSnapshot.customImage} target="_blank" className="relative w-10 h-10 rounded overflow-hidden border border-gray-200 hover:ring-2 hover:ring-indigo-500 transition block shrink-0">
-                                                        {/* Using img for simplicity in table, or Next Image */}
-                                                        <img src={order.customizationSnapshot.customImage} alt="Custom" className="w-full h-full object-cover" />
+
+                                                {order.customizationSnapshot.printImageUrl && (
+                                                    <Link href={order.customizationSnapshot.printImageUrl} target="_blank" className="relative w-10 h-10 rounded overflow-hidden border border-gray-200 hover:ring-2 hover:ring-indigo-500 transition block shrink-0">
+                                                        <img src={order.customizationSnapshot.printImageUrl} alt="Print" className="w-full h-full object-cover" />
                                                     </Link>
                                                 )}
                                                 <div>
@@ -85,10 +85,10 @@ export default async function AdminOrdersPage() {
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-sm">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'PLACED' ? 'bg-gray-50 text-gray-600 border-gray-200' :
-                                                    order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
-                                                        order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                                            order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
-                                                                'bg-red-50 text-red-700 border-red-100'
+                                                order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
+                                                    order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                        order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
+                                                            'bg-red-50 text-red-700 border-red-100'
                                                 }`}>
                                                 {order.status}
                                             </span>
@@ -99,7 +99,19 @@ export default async function AdminOrdersPage() {
                                             )}
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-medium">
-                                            <AdminOrderActions order={serializedOrder} />
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Link
+                                                    href={`/admin/orders/${order._id}`}
+                                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                    title="View Full Details"
+                                                >
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                </Link>
+                                                <AdminOrderActions order={serializedOrder} />
+                                            </div>
                                         </td>
                                     </tr>
                                 )
