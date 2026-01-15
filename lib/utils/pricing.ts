@@ -16,6 +16,10 @@ const PRICES = {
         lemon: 4
     },
     color: {
+        pastel_yellow: 0,
+        pastel_red: 0,
+        pastel_blue: 0,
+        pastel_green: 0,
         white: 0,
         red: 2,
         pink: 2,

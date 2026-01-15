@@ -1,16 +1,20 @@
 import { auth } from '@/auth';
 import dbConnect from '@/lib/db/connect';
 import Cake from '@/lib/db/models/Cake';
-import { CakePreview } from '@/components/customization/CakePreview';
-import { ControlsPanel } from '@/components/customization/ControlsPanel';
+import { CustomizationClient } from '@/components/customization/CustomizationClient';
 import {
     CakeConfig,
     CakeShape,
     CakeFlavor,
     CakeColor,
     CakeDesign,
-    isValidConfig
+    isValidConfig, // Keeping for other uses, or remove if unused
+    SHAPES,
+    DESIGNS,
+    FLAVORS,
+    COLORS
 } from '@/lib/types/customization';
+import { getAvailableOptions } from '@/lib/assets';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -22,12 +26,17 @@ export default async function CustomizationPage({
 }) {
     const { slug } = await params;
 
+    // Dynamic Asset Loading (moved up for defaults)
+    const dynamicShapes = getAvailableOptions('shapes');
+    const dynamicToppings = getAvailableOptions('toppings');
+
     // Default Config
+    // Use first available option from filesystem or fallback to safe hardcodes
     let config: CakeConfig = {
-        shape: 'round',
+        shape: (dynamicShapes.length > 0 ? dynamicShapes[0] : 'round') as CakeShape,
         flavor: 'vanilla',
-        color: 'white',
-        design: 'classic',
+        color: 'pastel_yellow',
+        design: (dynamicToppings.length > 0 ? dynamicToppings[0] : 'classic') as CakeDesign, // Fallback to classic only if empty
         message: ''
     };
 
@@ -38,7 +47,18 @@ export default async function CustomizationPage({
     if (slug && slug.length >= 5) {
         const [id, shape, flavor, color, design] = slug;
         cakeId = id;
-        if (isValidConfig(shape, flavor, color, design)) {
+
+        // Validation: Check against strict lists for Flavor/Color, but Dynamic lists for Shape/Design
+        const isShapeValid = dynamicShapes.includes(shape) || SHAPES.includes(shape as any);
+        const isDesignValid = dynamicToppings.includes(design) || DESIGNS.includes(design as any);
+        // Note: We might want to be lenient on legacy/hardcoded ones too just in case
+
+        if (
+            isShapeValid &&
+            FLAVORS.includes(flavor as CakeFlavor) &&
+            COLORS.includes(color as CakeColor) &&
+            isDesignValid
+        ) {
             config = {
                 shape: shape as CakeShape,
                 flavor: flavor as CakeFlavor,
@@ -74,7 +94,7 @@ export default async function CustomizationPage({
                 config = {
                     shape: (fetchedCake.allowedShapes[0] || 'round') as CakeShape,
                     flavor: (fetchedCake.allowedFlavors[0] || 'vanilla') as CakeFlavor,
-                    color: (fetchedCake.allowedColors[0] || 'white') as CakeColor,
+                    color: (fetchedCake.allowedColors[0] || 'pastel_yellow') as CakeColor,
                     design: (fetchedCake.allowedDesigns[0] || 'classic') as CakeDesign,
                     message: ''
                 };
@@ -82,47 +102,25 @@ export default async function CustomizationPage({
         } catch (e) { }
     }
 
+    if (fetchedCake) {
+        fetchedCake._id = fetchedCake._id.toString();
+        // FORCE UNLOCK: Clear restricted designs so the UI shows ALL dynamic options found
+        // This satisfies "provide this option to choose all the toppings"
+        if (fetchedCake.allowedDesigns) {
+            fetchedCake.allowedDesigns = [];
+        }
+    }
+
+    // Dynamic Asset Loading (Already loaded above)
+
+
     return (
-        <div className="min-h-screen flex flex-col lg:flex-row bg-white">
-            {/* 
-            LEFT COLUMN: PREVIEW
-            */}
-            <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center p-8 lg:h-screen lg:sticky lg:top-0 border-r border-gray-100">
-                <div className="w-full max-w-lg">
-                    <CakePreview config={config} />
-                </div>
-            </div>
-
-            {/* 
-            RIGHT COLUMN: CONTROLS
-            */}
-            <div className="w-full lg:w-1/2 bg-white p-6 lg:p-16 xl:p-24 flex flex-col">
-                <div className="max-w-xl mx-auto w-full">
-                    <div className="mb-10 text-center lg:text-left">
-                        <span className="inline-block py-1 px-3 rounded-full bg-red-50 text-red-600 text-xs font-bold tracking-wide uppercase mb-3">
-                            {fetchedCake ? 'Custom Order' : 'Build Your Own'}
-                        </span>
-                        <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
-                            {fetchedCake ? fetchedCake.name : 'Build Your Cake'}
-                        </h1>
-                        <p className="text-gray-500 text-lg">
-                            Customize your perfect cake.
-                            {fetchedCake && <span className="block mt-1 text-sm text-gray-400">Base Price: ${fetchedCake.basePrice}</span>}
-                        </p>
-                    </div>
-
-                    <ControlsPanel
-                        config={config}
-                        cakeId={cakeId}
-                        allowedOptions={fetchedCake ? {
-                            shapes: fetchedCake.allowedShapes,
-                            flavors: fetchedCake.allowedFlavors,
-                            colors: fetchedCake.allowedColors,
-                            designs: fetchedCake.allowedDesigns
-                        } : undefined}
-                    />
-                </div>
-            </div>
-        </div>
+        <CustomizationClient
+            config={config}
+            cakeId={cakeId}
+            fetchedCake={fetchedCake}
+            availableShapes={dynamicShapes}
+            availableToppings={dynamicToppings}
+        />
     );
 }

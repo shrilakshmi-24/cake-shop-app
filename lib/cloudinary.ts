@@ -19,9 +19,13 @@ export async function uploadImage(file: File): Promise<string> {
             },
             (error, result) => {
                 if (error) {
+                    console.error('Cloudinary Upload Error:', error);
                     reject(error);
+                } else if (!result || !result.secure_url) {
+                    console.error('Cloudinary Upload Result Missing URL:', result);
+                    reject(new Error('Cloudinary upload completed but returned no URL'));
                 } else {
-                    resolve(result?.secure_url || '');
+                    resolve(result.secure_url);
                 }
             }
         ).end(buffer);

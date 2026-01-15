@@ -21,6 +21,13 @@ interface ControlsPanelProps {
         colors: string[];
         designs: string[];
     };
+    dynamicOptions?: {
+        shapes: string[];
+        toppings: string[];
+    };
+    imageFile: File | null;
+    setImageFile: (file: File | null) => void;
+    onConfigChange?: (newConfig: CakeConfig) => void;
 }
 
 // Icons (unchanged)
@@ -38,20 +45,37 @@ const FlavorMeta: Record<string, { desc: string, bg: string }> = {
     lemon: { desc: 'Zesty Lemon Curd', bg: 'bg-yellow-50' }
 };
 
-export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelProps) {
-    const router = useRouter();
+export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setImageFile, dynamicOptions, onConfigChange }: ControlsPanelProps) {
+    const router = useRouter(); // Still needed for order push
     const [isOrdering, setIsOrdering] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    // const [imageFile, setImageFile] = useState<File | null>(null); // Lifted up
     const [message, setMessage] = useState(config.message || '');
     const [notes, setNotes] = useState(config.notes || '');
 
     const price = calculatePrice(config);
 
-    // Filter Options based on Cake Restrictions
-    const availableShapes = SHAPES.filter(s => !allowedOptions || allowedOptions.shapes.includes(s));
-    const availableFlavors = FLAVORS.filter(f => !allowedOptions || allowedOptions.flavors.includes(f));
-    const availableColors = COLORS.filter(c => !allowedOptions || allowedOptions.colors.includes(c));
-    const availableDesigns = DESIGNS.filter(d => !allowedOptions || allowedOptions.designs.includes(d));
+    // Dynamic Filtering Logic
+    // Source of truth: Filesystem (dynamicOptions) > Constants (SHAPES/DESIGNS)
+    const baseShapes = dynamicOptions?.shapes && dynamicOptions.shapes.length > 0 ? dynamicOptions.shapes : SHAPES;
+    const baseDesigns = dynamicOptions?.toppings && dynamicOptions.toppings.length > 0 ? dynamicOptions.toppings : DESIGNS;
+
+    // Helper to safely filter or fallback
+    // If strict compliance with DB restrictions (allowedOptions) yields NOTHING (e.g. caused by legacy data mismatch), 
+    // fallback to showing all available physical options.
+    const safeFilter = (base: readonly string[] | string[], allowed?: string[]) => {
+        if (!allowed || allowed.length === 0) return base;
+        const intersection = base.filter(item => allowed.includes(item));
+        return intersection.length > 0 ? intersection : base;
+    };
+
+    const availableShapes = safeFilter(baseShapes, allowedOptions?.shapes);
+    const availableFlavors = safeFilter(FLAVORS, allowedOptions?.flavors);
+
+    // For Colors, since we completely replaced the system to 4 Pastel Colors, 
+    // we should likely ignore legacy DB colors (like 'white', 'red') entirely if they don't match.
+    const availableColors = safeFilter(COLORS, allowedOptions?.colors);
+
+    const availableDesigns = safeFilter(baseDesigns, allowedOptions?.designs);
 
     const handleOrder = async () => {
         setIsOrdering(true);
@@ -70,7 +94,11 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
             }
 
             if (imageFile) {
+                // Debug log to confirm file presence
+                console.log('Attaching image file to order:', imageFile.name, imageFile.size);
                 formData.append('printImageUrl', imageFile);
+            } else {
+                console.warn('No image file selected');
             }
 
             const result = await createOrder(formData);
@@ -90,11 +118,15 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
 
     const updateConfig = (key: keyof CakeConfig, value: string) => {
         const newConfig = { ...config, [key]: value };
-        // Construct URL: if cakeId exists, include it
-        const url = cakeId
-            ? `/customization/${cakeId}/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`
-            : `/customization/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`;
-        router.push(url);
+        if (onConfigChange) {
+            onConfigChange(newConfig);
+        } else {
+            // Fallback for legacy behavior
+            const url = cakeId
+                ? `/customization/${cakeId}/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`
+                : `/customization/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`;
+            router.push(url);
+        }
     };
 
     return (
@@ -163,10 +195,20 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
                         >
                             <div
                                 className="w-full h-full rounded-full border border-gray-200 shadow-sm"
-                                style={{ backgroundColor: c === 'white' ? '#fff' : c }}
-                            />
-                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-400 capitalize opacity-0 group-hover:opacity-100 transition-opacity">
-                                {c}
+                                style={{
+                                    backgroundColor: c.replace('pastel_', 'var(--color-)')
+                                }}
+                            >
+                                <div className="w-full h-full rounded-full" style={{
+                                    backgroundColor:
+                                        c === 'pastel_red' ? '#fca5a5' :
+                                            c === 'pastel_blue' ? '#93c5fd' :
+                                                c === 'pastel_yellow' ? '#fde68a' :
+                                                    c === 'pastel_green' ? '#86efac' : '#eee'
+                                }}></div>
+                            </div>
+                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-400 capitalize opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                {c.replace('pastel_', '')}
                             </span>
                         </button>
                     ))}
@@ -186,11 +228,8 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
                                 : 'border-gray-200 hover:border-gray-400 text-gray-600'
                                 }`}
                         >
-                            {/* Abstract visual hint */}
-                            {d === 'drip' && <div className="absolute top-0 left-0 w-full h-2 bg-current opacity-20 rounded-b-xl" />}
-                            {d === 'naked' && <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, currentColor 5px, currentColor 10px)' }} />}
-
-                            <span className="capitalize text-sm z-10">{d}</span>
+                            {/* Visual Hint for Design - Try and load the image if possible? Or just text */}
+                            <span className="capitalize text-sm z-10">{d.replace('_', ' ')}</span>
                         </button>
                     ))}
                 </div>
@@ -239,7 +278,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
                                 </svg>
                             </div>
                             <h4 className="font-medium text-gray-900 mb-1">Upload something to print 🎂</h4>
-                            <p className="text-xs text-pink-600 font-semibold mb-2">+$5.00</p>
+                            <p className="text-xs text-pink-600 font-semibold mb-2">+₹5.00</p>
                             {/* Assuming +$5 based on mockup +45 visual cue */}
                         </div>
                     )}
@@ -281,7 +320,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions }: ControlsPanelP
                 <div className="flex items-center justify-between max-w-xl mx-auto lg:mr-auto lg:ml-0">
                     <div className="flex flex-col">
                         <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">Total</span>
-                        <span className="text-3xl font-bold text-gray-900 font-mono">${price.toFixed(2)}</span>
+                        <span className="text-3xl font-bold text-gray-900 font-mono">₹{price.toFixed(2)}</span>
                     </div>
                     <button
                         onClick={handleOrder}

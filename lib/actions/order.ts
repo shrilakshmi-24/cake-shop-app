@@ -36,9 +36,9 @@ export async function createOrder(formData: FormData) {
         if (imageFile && imageFile.size > 0) {
             try {
                 printImageUrl = await uploadImage(imageFile);
-            } catch (e) {
+            } catch (e: any) {
                 console.error('User image upload failed', e);
-                return { success: false, error: 'Failed to upload custom image' };
+                return { success: false, error: `Failed to upload custom image: ${e.message}` };
             }
         }
 
@@ -51,6 +51,8 @@ export async function createOrder(formData: FormData) {
             notes,
             printImageUrl: printImageUrl
         };
+
+        console.log('Creating Order with Config:', JSON.stringify(config, null, 2));
 
         // Create the order
         const order = await Order.create({

@@ -1,0 +1,59 @@
+ <svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Small chocolate chip dots evenly distributed */}
+      <circle cx="120" cy="110" r="5" fill="#3E2723" />
+      <circle cx="160" cy="100" r="6" fill="#5D4037" />
+      <circle cx="200" cy="95" r="5" fill="#3E2723" />
+      <circle cx="240" cy="100" r="6" fill="#5D4037" />
+      <circle cx="280" cy="110" r="5" fill="#3E2723" />
+      
+      <circle cx="90" cy="140" r="5" fill="#5D4037" />
+      <circle cx="140" cy="135" r="6" fill="#3E2723" />
+      <circle cx="180" cy="130" r="5" fill="#5D4037" />
+      <circle cx="220" cy="130" r="6" fill="#3E2723" />
+      <circle cx="260" cy="135" r="5" fill="#5D4037" />
+      <circle cx="310" cy="140" r="6" fill="#3E2723" />
+      
+      <circle cx="80" cy="170" r="6" fill="#3E2723" />
+      <circle cx="120" cy="165" r="5" fill="#5D4037" />
+      <circle cx="160" cy="160" r="6" fill="#3E2723" />
+      <circle cx="200" cy="165" r="5" fill="#5D4037" />
+      <circle cx="240" cy="160" r="6" fill="#3E2723" />
+      <circle cx="280" cy="165" r="5" fill="#5D4037" />
+      <circle cx="320" cy="170" r="6" fill="#3E2723" />
+      
+      <circle cx="70" cy="200" r="5" fill="#5D4037" />
+      <circle cx="110" cy="200" r="6" fill="#3E2723" />
+      <circle cx="150" cy="195" r="5" fill="#5D4037" />
+      <circle cx="190" cy="200" r="6" fill="#3E2723" />
+      <circle cx="230" cy="195" r="5" fill="#5D4037" />
+      <circle cx="270" cy="200" r="6" fill="#3E2723" />
+      <circle cx="310" cy="200" r="5" fill="#5D4037" />
+      <circle cx="330" cy="200" r="6" fill="#3E2723" />
+      
+      <circle cx="80" cy="230" r="6" fill="#3E2723" />
+      <circle cx="120" cy="235" r="5" fill="#5D4037" />
+      <circle cx="160" cy="230" r="6" fill="#3E2723" />
+      <circle cx="200" cy="235" r="5" fill="#5D4037" />
+      <circle cx="240" cy="230" r="6" fill="#3E2723" />
+      <circle cx="280" cy="235" r="5" fill="#5D4037" />
+      <circle cx="320" cy="230" r="6" fill="#3E2723" />
+      
+      <circle cx="90" cy="260" r="5" fill="#5D4037" />
+      <circle cx="140" cy="265" r="6" fill="#3E2723" />
+      <circle cx="180" cy="260" r="5" fill="#5D4037" />
+      <circle cx="220" cy="265" r="6" fill="#3E2723" />
+      <circle cx="260" cy="260" r="5" fill="#5D4037" />
+      <circle cx="310" cy="260" r="6" fill="#3E2723" />
+      
+      <circle cx="120" cy="290" r="6" fill="#3E2723" />
+      <circle cx="160" cy="295" r="5" fill="#5D4037" />
+      <circle cx="200" cy="290" r="6" fill="#3E2723" />
+      <circle cx="240" cy="295" r="5" fill="#5D4037" />
+      <circle cx="280" cy="290" r="6" fill="#3E2723" />
+    </svg>

@@ -1,0 +1,41 @@
+<svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Pearl border pattern - evenly distributed around edge */}
+      <circle cx="200" cy="60" r="8" fill="#F8F8F8" />
+      <circle cx="240" cy="68" r="8" fill="#F8F8F8" />
+      <circle cx="276" cy="84" r="8" fill="#F8F8F8" />
+      <circle cx="308" cy="108" r="8" fill="#F8F8F8" />
+      <circle cx="332" cy="140" r="8" fill="#F8F8F8" />
+      <circle cx="348" cy="176" r="8" fill="#F8F8F8" />
+      <circle cx="352" cy="216" r="8" fill="#F8F8F8" />
+      <circle cx="348" cy="256" r="8" fill="#F8F8F8" />
+      <circle cx="332" cy="292" r="8" fill="#F8F8F8" />
+      <circle cx="308" cy="324" r="8" fill="#F8F8F8" />
+      <circle cx="276" cy="348" r="8" fill="#F8F8F8" />
+      <circle cx="240" cy="364" r="8" fill="#F8F8F8" />
+      <circle cx="200" cy="372" r="8" fill="#F8F8F8" />
+      <circle cx="160" cy="364" r="8" fill="#F8F8F8" />
+      <circle cx="124" cy="348" r="8" fill="#F8F8F8" />
+      <circle cx="92" cy="324" r="8" fill="#F8F8F8" />
+      <circle cx="68" cy="292" r="8" fill="#F8F8F8" />
+      <circle cx="52" cy="256" r="8" fill="#F8F8F8" />
+      <circle cx="48" cy="216" r="8" fill="#F8F8F8" />
+      <circle cx="52" cy="176" r="8" fill="#F8F8F8" />
+      <circle cx="68" cy="140" r="8" fill="#F8F8F8" />
+      <circle cx="92" cy="108" r="8" fill="#F8F8F8" />
+      <circle cx="124" cy="84" r="8" fill="#F8F8F8" />
+      <circle cx="160" cy="68" r="8" fill="#F8F8F8" />
+      
+      {/* Inner pearl accents */}
+      <circle cx="200" cy="120" r="6" fill="#E8E8E8" />
+      <circle cx="260" cy="160" r="6" fill="#E8E8E8" />
+      <circle cx="260" cy="240" r="6" fill="#E8E8E8" />
+      <circle cx="200" cy="280" r="6" fill="#E8E8E8" />
+      <circle cx="140" cy="240" r="6" fill="#E8E8E8" />
+      <circle cx="140" cy="160" r="6" fill="#E8E8E8" />
+    </svg>

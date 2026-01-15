@@ -38,4 +38,9 @@ const OrderSchema = new Schema<IOrder>({
     rejectionReason: { type: String }
 }, { timestamps: true });
 
+// Force recompilation of model in dev to ensure schema updates (notes/printImageUrl) are applied
+if (process.env.NODE_ENV === 'development') {
+    delete mongoose.models.Order;
+}
+
 export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

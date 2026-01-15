@@ -1,39 +1,69 @@
-export function CakePreview({ config }: { config: any }) {
-    // Determine visuals based on config (Placeholder logic preserved but styled better)
+import Image from 'next/image';
+import { CakeConfig, COLOR_HEX_MAP } from '@/lib/types/customization';
+
+interface CakePreviewProps {
+    config: CakeConfig;
+    printImageFile?: File | null;
+}
+
+export function CakePreview({ config, printImageFile }: CakePreviewProps) {
+    const { shape, color, design } = config;
+
+    // Create object URL for print image preview if available
+    const printImageUrl = printImageFile ? URL.createObjectURL(printImageFile) : null;
 
     return (
-        <div className="w-full h-full flex items-center justify-center p-8 bg-white">
-            <div className="relative w-full max-w-md aspect-square bg-[#FAFAFA] rounded-[3rem] shadow-inner flex items-center justify-center p-12 transition-all duration-500">
+        <div className="w-full h-full flex items-center justify-center p-8 bg-white/50">
+            <div className="relative w-full max-w-[500px] aspect-square flex items-center justify-center">
 
-                {/* Plate Shadow */}
-                <div className="absolute bottom-20 w-3/4 h-8 bg-black/5 rounded-[100%] blur-xl" />
-
-                {/* Cake Base Representation */}
+                {/* 
+                  1. Shape & Color Layer (CSS Mask) 
+                  - Use the shape PNG as a mask
+                  - Apply the selected color as background
+                */}
                 <div
-                    className={`
-                  relative z-10 w-48 h-48 transition-all duration-500 transform
-                  ${config.shape === 'square' ? 'rounded-3xl' : 'rounded-full'}
-                  ${config.shape === 'heart' ? 'rounded-full after:content-[""] after:absolute after:-left-12 after:top-0 after:w-48 after:h-48 after:rounded-full after:bg-inherit before:content-[""] before:absolute before:-top-12 before:left-0 before:w-48 before:h-48 before:rounded-full before:bg-inherit rotate-45 mt-10' : ''}
-              `}
+                    className="absolute inset-0 z-10"
                     style={{
-                        backgroundColor: config.color === 'white' ? '#f0f0f0' : config.color
+                        backgroundColor: COLOR_HEX_MAP[config.color] || '#fde68a', // Fallback
+                        maskImage: `url(/cake/shapes/${shape}.svg)`,
+                        WebkitMaskImage: `url(/cake/shapes/${shape}.svg)`,
+                        maskSize: 'contain',
+                        WebkitMaskSize: 'contain',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                        WebkitMaskPosition: 'center',
                     }}
                 >
-                    {/* Optional Decoration layer */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-50">
-                        <span className="text-xs font-mono uppercase tracking-widest text-black/20">
-                            {config.flavor} / {config.design}
-                        </span>
-                    </div>
+                    {/* Shadow / Depth overlay could go here if needed, but keeping it simple as requested */}
                 </div>
 
-                {/* Text Overlay for context (temporary viz) */}
-                <div className="absolute bottom-10 left-0 right-0 text-center">
-                    <span className="inline-block px-3 py-1 bg-white border border-gray-100 rounded-full text-xs font-medium text-gray-500 shadow-sm">
-                        {config.shape} • {config.color}
-                    </span>
+                {/* 2. Topping / Design Layer (Transparent PNG) */}
+                <div className="absolute inset-0 z-20 pointer-events-none">
+                    {/* Only render if we have a valid topping URL (sanity check handled by page defaults now) */}
+                    <img
+                        src={`/cake/toppings/${design}.svg`}
+                        alt={`${design} design`}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                        }}
+                    />
                 </div>
+
+                {/* 3. User Print Image (Topmost) */}
+                {printImageUrl && (
+                    <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
+                        <div className="w-1/3 h-1/3 relative transform -translate-y-4">
+                            <img
+                                src={printImageUrl}
+                                alt="Print Preview"
+                                className="w-full h-full object-contain rounded-md shadow-sm opacity-90"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
+        </div >
     )
 }

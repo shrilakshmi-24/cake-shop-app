@@ -81,7 +81,7 @@ export default async function AdminOrdersPage() {
                                             )}
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-900">
-                                            ${order.finalPrice.toFixed(2)}
+                                            ₹{order.finalPrice.toFixed(2)}
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-sm">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'PLACED' ? 'bg-gray-50 text-gray-600 border-gray-200' :

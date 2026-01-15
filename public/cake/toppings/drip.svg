@@ -1,0 +1,21 @@
+<svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Drips from top edge - flat shapes */}
+      <path d="M 80 50 L 70 50 L 70 80 L 75 95 L 80 80 Z" fill="#E91E63" />
+      <path d="M 130 50 L 120 50 L 120 100 L 125 120 L 130 100 Z" fill="#E91E63" />
+      <path d="M 180 50 L 170 50 L 170 70 L 175 85 L 180 70 Z" fill="#E91E63" />
+      <path d="M 220 50 L 210 50 L 210 110 L 215 130 L 220 110 Z" fill="#E91E63" />
+      <path d="M 270 50 L 260 50 L 260 90 L 265 105 L 270 90 Z" fill="#E91E63" />
+      <path d="M 320 50 L 310 50 L 310 75 L 315 90 L 320 75 Z" fill="#E91E63" />
+      
+      {/* Additional shorter drips */}
+      <path d="M 100 50 L 95 50 L 95 65 L 97.5 75 L 100 65 Z" fill="#E91E63" />
+      <path d="M 155 50 L 150 50 L 150 85 L 152.5 100 L 155 85 Z" fill="#E91E63" />
+      <path d="M 245 50 L 240 50 L 240 70 L 242.5 80 L 245 70 Z" fill="#E91E63" />
+      <path d="M 295 50 L 290 50 L 290 95 L 292.5 110 L 295 95 Z" fill="#E91E63" />
+    </svg>

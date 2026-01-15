@@ -44,7 +44,7 @@ export default async function AdminCakesPage() {
                             {cakes.map((cake: any) => (
                                 <tr key={cake._id.toString()} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-gray-900">{cake.name}</td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">${cake.basePrice.toFixed(2)}</td>
+                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500 font-mono">₹{cake.basePrice.toFixed(2)}</td>
                                     <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-500">
                                         {cake.allowedShapes.length} Shapes • {cake.allowedFlavors.length} Flavors
                                     </td>

@@ -110,7 +110,7 @@ export default async function OrdersPage() {
 
                                         <div className="text-right">
                                             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Total</p>
-                                            <p className="text-xl font-bold text-gray-900">${order.finalPrice.toFixed(2)}</p>
+                                            <p className="text-xl font-bold text-gray-900">₹{order.finalPrice.toFixed(2)}</p>
                                         </div>
                                     </div>
 

@@ -37,7 +37,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Order Details</h1>
                         <p className="mt-1 text-sm text-gray-500">
-                            ID: <span className="font-mono">{order._id.toString()}</span> • {new Date(order.createdAt).toLocaleDateString()}
+                            ID: <span className="font-mono">{order._id.toString()}</span> • {new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
                         </p>
                     </div>
                     <Link href="/admin/orders" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
@@ -50,10 +50,10 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                     <div className="bg-gray-50/50 border-b border-gray-100 p-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold border ${order.status === 'PLACED' ? 'bg-gray-100 text-gray-600 border-gray-200' :
-                                    order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                        order.status === 'READY' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                            order.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' :
-                                                'bg-red-100 text-red-700 border-red-200'
+                                order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                    order.status === 'READY' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' :
+                                            'bg-red-100 text-red-700 border-red-200'
                                 }`}>
                                 {order.status}
                             </span>
@@ -64,7 +64,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                             )}
                         </div>
                         <div className="text-3xl font-bold text-gray-900 font-mono">
-                            ${order.finalPrice.toFixed(2)}
+                            ₹{order.finalPrice.toFixed(2)}
                         </div>
                     </div>
 
@@ -82,7 +82,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                                     ].map((item) => (
                                         <div key={item.label} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                             <dt className="text-sm font-medium text-gray-500">{item.label}</dt>
-                                            <dd className="text-sm font-bold text-gray-900 capitalize">{item.value.replace('_', ' ')}</dd>
+                                            <dd className="text-sm font-bold text-gray-900 capitalize">{(item.value || '').replace('_', ' ')}</dd>
                                         </div>
                                     ))}
                                 </dl>
@@ -115,22 +115,32 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Reference Image</h3>
                             <div className="flex-1 flex items-center justify-center min-h-[300px] border-2 border-dashed border-gray-200 rounded-2xl bg-white p-4">
                                 {order.customizationSnapshot.printImageUrl ? (
-                                    <Link href={order.customizationSnapshot.printImageUrl} target="_blank" className="block relative group w-full h-full">
-                                        <img
-                                            src={order.customizationSnapshot.printImageUrl}
-                                            alt="User Print Upload"
-                                            className="w-full h-full object-contain rounded-lg max-h-[500px]"
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
-                                            <span className="opacity-0 group-hover:opacity-100 bg-black/75 text-white px-4 py-2 rounded-full text-sm font-medium transition-opacity">
-                                                View Original
-                                            </span>
-                                        </div>
-                                    </Link>
+                                    <div className="w-full h-full flex flex-col items-center gap-4">
+                                        <Link href={order.customizationSnapshot.printImageUrl} target="_blank" className="block relative group w-full flex-1 min-h-[200px]">
+                                            <img
+                                                src={order.customizationSnapshot.printImageUrl}
+                                                alt="User Print Upload"
+                                                className="w-full h-full object-contain rounded-lg shadow-sm"
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
+                                                <span className="opacity-0 group-hover:opacity-100 bg-black/75 text-white px-4 py-2 rounded-full text-sm font-medium transition-opacity">
+                                                    Zoom
+                                                </span>
+                                            </div>
+                                        </Link>
+                                        <Link
+                                            href={order.customizationSnapshot.printImageUrl}
+                                            target="_blank"
+                                            className="text-xs text-indigo-600 underline hover:text-indigo-800"
+                                        >
+                                            Open Original Image
+                                        </Link>
+                                    </div>
                                 ) : (
                                     <div className="text-center text-gray-400">
                                         <span className="block text-4xl mb-2">📷</span>
                                         <span className="text-sm">No image uploaded</span>
+                                        <p className="text-xs text-gray-300 mt-2">Field 'printImageUrl' is empty</p>
                                     </div>
                                 )}
                             </div>
