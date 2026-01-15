@@ -3,9 +3,22 @@
 import { useActionState } from 'react';
 import { createCake } from '@/lib/actions/cake';
 import Link from 'next/link';
+import { useToast } from '@/contexts/ToastContext';
+import { useEffect } from 'react';
 
 export default function CreateCakePage() {
     const [state, dispatch] = useActionState(createCake, null);
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        if (state?.message) {
+            if (state.message.includes('success') || state.message.includes('Created')) {
+                showToast(state.message, 'success');
+            } else {
+                showToast(state.message, 'error');
+            }
+        }
+    }, [state, showToast]);
 
     return (
         <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -25,7 +38,7 @@ export default function CreateCakePage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Base Price ($)</label>
+                        <label className="block text-sm font-medium text-gray-700">Base Price (₹)</label>
                         <input type="number" name="basePrice" step="0.01" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" />
                     </div>
 
@@ -63,7 +76,7 @@ export default function CreateCakePage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Allowed Designs</label>
-                                <input type="text" name="allowedDesigns" defaultValue="classic, modern, drip, naked" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" />
+                                <input type="text" name="allowedDesigns" defaultValue="chocochip, classic, pearl, flower, star" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" />
                             </div>
                         </div>
                     </div>

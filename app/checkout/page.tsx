@@ -7,12 +7,13 @@ import { AddressForm, AddressDetails } from '@/components/customization/AddressF
 import { calculatePrice } from '@/lib/utils/pricing';
 import { createOrder } from '@/lib/actions/order';
 import { useSession } from 'next-auth/react';
-import { Toast } from '@/components/ui/Toast';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function CheckoutPage() {
     const { config, imageFile, cakeId } = useOrder();
     const router = useRouter();
     const { data: session } = useSession();
+    const { showToast } = useToast();
 
     const [isOrdering, setIsOrdering] = useState(false);
     const [name, setName] = useState('');
@@ -26,7 +27,6 @@ export default function CheckoutPage() {
         lat: undefined,
         lng: undefined
     });
-    const [showToast, setShowToast] = useState(false);
 
     // Pre-fill name from session
     useEffect(() => {
@@ -51,10 +51,10 @@ export default function CheckoutPage() {
 
     const handlePlaceOrder = async () => {
         // Validation
-        if (!name.trim()) return alert('Please enter your name');
-        if (!phone.trim() || !/^\d{10}$/.test(phone.replace(/\D/g, ''))) return alert('Please enter a valid 10-digit phone number');
-        if (!address.houseNo || !address.street || !address.city || !address.zip) return alert('Please complete the delivery address');
-        if (!address.lat || !address.lng) return alert('Please select a location on the map');
+        if (!name.trim()) return showToast('Please enter your name', 'error');
+        if (!phone.trim() || !/^\d{10}$/.test(phone.replace(/\D/g, ''))) return showToast('Please enter a valid 10-digit phone number', 'error');
+        if (!address.houseNo || !address.street || !address.city || !address.zip) return showToast('Please complete the delivery address', 'error');
+        if (!address.lat || !address.lng) return showToast('Please select a location on the map', 'error');
 
         setIsOrdering(true);
         try {
@@ -90,17 +90,17 @@ export default function CheckoutPage() {
             const result = await createOrder(formData);
 
             if (result.success) {
-                setShowToast(true);
+                showToast('Order Placed Successfully! Redirecting...', 'success');
                 setTimeout(() => {
                     router.push('/orders');
                 }, 2000);
             } else {
-                alert(result.error || 'Failed to place order');
+                showToast(result.error || 'Failed to place order', 'error');
                 setIsOrdering(false);
             }
         } catch (e) {
             console.error(e);
-            alert('An unexpected error occurred');
+            showToast('An unexpected error occurred', 'error');
             setIsOrdering(false);
         }
     };
@@ -214,12 +214,6 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </div>
-
-            <Toast
-                message="Order Placed Successfully! Redirecting..."
-                show={showToast}
-                onClose={() => setShowToast(false)}
-            />
         </main>
     );
 }

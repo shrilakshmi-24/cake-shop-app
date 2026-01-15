@@ -1,7 +1,6 @@
 import dbConnect from '@/lib/db/connect';
 import Cake from '@/lib/db/models/Cake';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
 import { Carousel } from '@/components/ui/Carousel';
 
 // Ensure data is fresh
@@ -15,9 +14,6 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Dynamic Header */}
-      <Header />
-
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
@@ -46,7 +42,7 @@ export default async function Home() {
                   <Carousel images={cake.images || []} />
                   {/* Badge if needed */}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm border border-gray-100 z-10">
-                    Base: ${cake.basePrice}
+                    Base: ₹${cake.basePrice}
                   </div>
                 </div>
 
@@ -74,11 +70,6 @@ export default async function Home() {
         )}
       </div>
 
-      <footer className="bg-white border-t border-gray-100 py-12 mt-auto">
-        <div className="text-center text-gray-400 text-sm">
-          &copy; {new Date().getFullYear()} Cake Shop. All rights reserved.
-        </div>
-      </footer>
     </main>
   );
 }

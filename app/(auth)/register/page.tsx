@@ -5,17 +5,21 @@ import { register } from '@/lib/actions/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function RegisterPage() {
     const [state, dispatch, isPending] = useActionState(register, undefined);
     const router = useRouter();
+    const { showToast } = useToast();
 
     useEffect(() => {
         if (state === 'success') {
-            alert('Registration successful! Please sign in.');
+            showToast('Registration successful! Please sign in.', 'success');
             router.push('/login');
+        } else if (state) {
+            showToast(state, 'error');
         }
-    }, [state, router]);
+    }, [state, router, showToast]);
 
     return (
         <div className="flex h-screen bg-white overflow-hidden">

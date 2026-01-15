@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { auth, signOut } from '@/auth';
+import { auth } from '@/auth';
+import { UserMenu } from './UserMenu';
 
 export async function Header() {
     const session = await auth();
@@ -16,41 +17,17 @@ export async function Header() {
                 </Link>
 
                 <nav className="flex items-center gap-6">
+                    <div className="hidden md:flex items-center gap-6 mr-6 border-r border-gray-100 pr-6">
+                        <Link href="/" className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
+                            Home
+                        </Link>
+                        <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
+                            About Us
+                        </Link>
+                    </div>
+
                     {user ? (
-                        <>
-                            {/* Admin Link */}
-                            {isAdmin && (
-                                <Link
-                                    href="/admin/orders"
-                                    className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors"
-                                >
-                                    Admin Dashboard
-                                </Link>
-                            )}
-
-                            {/* User Link */}
-                            <Link
-                                href="/orders"
-                                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
-                            >
-                                <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                                    {user.name?.[0]?.toUpperCase() || 'U'}
-                                </span>
-                                <span className="hidden sm:inline">My Orders</span>
-                            </Link>
-
-                            {/* Sign Out Button (Server Action) */}
-                            <form
-                                action={async () => {
-                                    'use server';
-                                    await signOut({ redirectTo: '/' });
-                                }}
-                            >
-                                <button className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
-                                    Sign Out
-                                </button>
-                            </form>
-                        </>
+                        <UserMenu user={user} isAdmin={isAdmin} />
                     ) : (
                         <>
                             <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
@@ -65,7 +42,7 @@ export async function Header() {
                         </>
                     )}
                 </nav>
-            </div>
-        </header>
+            </div >
+        </header >
     );
 }

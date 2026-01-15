@@ -2,13 +2,16 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { OrderProvider } from '@/contexts/OrderContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 import { ReactNode } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
     return (
         <SessionProvider>
             <OrderProvider>
-                {children}
+                <ToastProvider>
+                    {children}
+                </ToastProvider>
             </OrderProvider>
         </SessionProvider>
     );
