@@ -24,8 +24,32 @@ export async function createOrder(formData: FormData) {
         const design = formData.get('design') as string;
         const message = formData.get('message') as string;
         const notes = formData.get('notes') as string;
+        // Address Fields
+        const houseNo = formData.get('address_houseNo') as string;
+        const street = formData.get('address_street') as string;
+        const landmark = formData.get('address_landmark') as string;
+        const city = formData.get('address_city') as string;
+        const zip = formData.get('address_zip') as string;
+        const lat = formData.get('address_lat') ? parseFloat(formData.get('address_lat') as string) : undefined;
+        const lng = formData.get('address_lng') ? parseFloat(formData.get('address_lng') as string) : undefined;
+
         const price = parseFloat(formData.get('price') as string);
         const cakeId = formData.get('cakeId') as string;
+
+        if (!houseNo || !street || !city || !zip) {
+            return { success: false, error: 'Incomplete delivery address' };
+        }
+
+        const deliveryAddressObj = {
+            houseNo,
+            street,
+            landmark,
+            city,
+            zip,
+            coordinates: (lat && lng) ? { lat, lng } : undefined,
+            googleMapUrl: (lat && lng) ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}` : undefined,
+            fullFormatted: `${houseNo}, ${street}, ${landmark ? landmark + ', ' : ''}${city} - ${zip}`
+        };
 
         // Use provided cakeId or fallback to dummy (though in new flow cakeId should always be present)
         const targetCakeId = cakeId || '000000000000000000000000';
@@ -59,6 +83,11 @@ export async function createOrder(formData: FormData) {
             userId: (session.user as any).id,
             cakeId: targetCakeId,
             customizationSnapshot: config,
+            contactDetails: {
+                name: formData.get('contact_name'),
+                phone: formData.get('contact_phone')
+            },
+            deliveryAddress: deliveryAddressObj,
             finalPrice: price,
             status: 'PLACED'
         });

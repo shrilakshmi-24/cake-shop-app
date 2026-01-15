@@ -1,5 +1,3 @@
-'use client';
-
 import {
     CakeConfig,
     SHAPES,
@@ -8,9 +6,9 @@ import {
     DESIGNS
 } from '@/lib/types/customization';
 import { useRouter } from 'next/navigation';
-import { createOrder } from '@/lib/actions/order';
 import { calculatePrice } from '@/lib/utils/pricing';
 import { useState } from 'react';
+import { useOrder } from '@/contexts/OrderContext';
 
 interface ControlsPanelProps {
     config: CakeConfig;
@@ -46,22 +44,19 @@ const FlavorMeta: Record<string, { desc: string, bg: string }> = {
 };
 
 export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setImageFile, dynamicOptions, onConfigChange }: ControlsPanelProps) {
-    const router = useRouter(); // Still needed for order push
-    const [isOrdering, setIsOrdering] = useState(false);
-    // const [imageFile, setImageFile] = useState<File | null>(null); // Lifted up
+    const router = useRouter();
+    const { setConfig: setContextConfig, setImageFile: setContextImageFile, setCakeId } = useOrder();
+
+    // Local state for optional fields before they are committed to config
     const [message, setMessage] = useState(config.message || '');
     const [notes, setNotes] = useState(config.notes || '');
 
     const price = calculatePrice(config);
 
     // Dynamic Filtering Logic
-    // Source of truth: Filesystem (dynamicOptions) > Constants (SHAPES/DESIGNS)
     const baseShapes = dynamicOptions?.shapes && dynamicOptions.shapes.length > 0 ? dynamicOptions.shapes : SHAPES;
     const baseDesigns = dynamicOptions?.toppings && dynamicOptions.toppings.length > 0 ? dynamicOptions.toppings : DESIGNS;
 
-    // Helper to safely filter or fallback
-    // If strict compliance with DB restrictions (allowedOptions) yields NOTHING (e.g. caused by legacy data mismatch), 
-    // fallback to showing all available physical options.
     const safeFilter = (base: readonly string[] | string[], allowed?: string[]) => {
         if (!allowed || allowed.length === 0) return base;
         const intersection = base.filter(item => allowed.includes(item));
@@ -70,50 +65,18 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
 
     const availableShapes = safeFilter(baseShapes, allowedOptions?.shapes);
     const availableFlavors = safeFilter(FLAVORS, allowedOptions?.flavors);
-
-    // For Colors, since we completely replaced the system to 4 Pastel Colors, 
-    // we should likely ignore legacy DB colors (like 'white', 'red') entirely if they don't match.
     const availableColors = safeFilter(COLORS, allowedOptions?.colors);
-
     const availableDesigns = safeFilter(baseDesigns, allowedOptions?.designs);
 
-    const handleOrder = async () => {
-        setIsOrdering(true);
-        try {
-            const formData = new FormData();
-            formData.append('shape', config.shape);
-            formData.append('flavor', config.flavor);
-            formData.append('color', config.color);
-            formData.append('design', config.design);
-            formData.append('message', message);
-            formData.append('notes', notes);
-            formData.append('price', price.toString());
+    const handleNext = () => {
+        // Save current state to Context
+        const finalConfig = { ...config, message, notes };
+        setContextConfig(finalConfig);
+        setContextImageFile(imageFile);
+        setCakeId(cakeId);
 
-            if (cakeId) {
-                formData.append('cakeId', cakeId);
-            }
-
-            if (imageFile) {
-                // Debug log to confirm file presence
-                console.log('Attaching image file to order:', imageFile.name, imageFile.size);
-                formData.append('printImageUrl', imageFile);
-            } else {
-                console.warn('No image file selected');
-            }
-
-            const result = await createOrder(formData);
-            if (result.success) {
-                alert(`Order Placed! ID: ${result.orderId}`);
-                router.push('/orders');
-            } else {
-                alert(result.error || 'Failed to place order.');
-            }
-        } catch (e) {
-            console.error(e);
-            alert('Error placing order');
-        } finally {
-            setIsOrdering(false);
-        }
+        // Navigate to Checkout
+        router.push('/checkout');
     };
 
     const updateConfig = (key: keyof CakeConfig, value: string) => {
@@ -121,7 +84,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
         if (onConfigChange) {
             onConfigChange(newConfig);
         } else {
-            // Fallback for legacy behavior
+            // Fallback for logic where onConfigChange isn't passed (if any)
             const url = cakeId
                 ? `/customization/${cakeId}/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`
                 : `/customization/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`;
@@ -228,7 +191,6 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                                 : 'border-gray-200 hover:border-gray-400 text-gray-600'
                                 }`}
                         >
-                            {/* Visual Hint for Design - Try and load the image if possible? Or just text */}
                             <span className="capitalize text-sm z-10">{d.replace('_', ' ')}</span>
                         </button>
                     ))}
@@ -249,7 +211,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                 <p className="text-xs text-gray-400 pl-1">Will be written on the cake board or top. Max 30 chars.</p>
             </section>
 
-            {/* Print Image Upload (Mockup Style) */}
+            {/* Print Image Upload */}
             <section>
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center hover:border-gray-300 transition-colors group relative bg-gray-50/50">
                     <input
@@ -279,19 +241,13 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                             </div>
                             <h4 className="font-medium text-gray-900 mb-1">Upload something to print 🎂</h4>
                             <p className="text-xs text-pink-600 font-semibold mb-2">+₹5.00</p>
-                            {/* Assuming +$5 based on mockup +45 visual cue */}
                         </div>
                     )}
                 </div>
-                {!imageFile && (
-                    <p className="text-xs text-gray-400 mt-3 text-center">
-                        We will make sure to place it in the right position on the cake
-                    </p>
-                )}
             </section>
 
             {/* Additional Guide (Notes) */}
-            <section className="bg-gray-50 rounded-2xl p-1">
+            <section className="bg-gray-50 rounded-2xl p-1 mb-8">
                 <details className="group" open>
                     <summary className="flex items-center justify-between p-4 cursor-pointer list-none">
                         <div className="flex items-center gap-2">
@@ -318,20 +274,16 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
             {/* Floating Action Bar */}
             <div className="fixed bottom-0 right-0 w-full lg:w-1/2 p-6 bg-white/90 backdrop-blur-md border-t border-gray-100 z-50">
                 <div className="flex items-center justify-between max-w-xl mx-auto lg:mr-auto lg:ml-0">
-                    <div className="flex flex-col">
-                        <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">Total</span>
-                        <span className="text-3xl font-bold text-gray-900 font-mono">₹{price.toFixed(2)}</span>
+                    {/* Subtotal Display */}
+                    <div className="flex flex-col leading-tight">
+                        <span className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Subtotal</span>
+                        <span className="text-2xl font-bold text-gray-900 font-mono">₹{price.toFixed(2)}</span>
                     </div>
                     <button
-                        onClick={handleOrder}
-                        disabled={isOrdering}
-                        className="px-10 py-4 bg-gray-900 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-black transition-all shadow-xl hover:shadow-2xl disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-95 flex items-center gap-2"
+                        onClick={handleNext}
+                        className="px-10 py-4 bg-gray-900 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-black transition-all shadow-xl hover:shadow-2xl transform active:scale-95 flex items-center gap-2"
                     >
-                        {isOrdering ? (
-                            <>Processing...</>
-                        ) : (
-                            <>Add to Cart &rarr;</>
-                        )}
+                        Next: Delivery &rarr;
                     </button>
                 </div>
             </div>

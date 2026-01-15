@@ -12,12 +12,10 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
         redirect('/login');
     }
 
-    // Await params mainly for Next.js 15+ compatibility but good practice in general
     const { id } = await Promise.resolve(params);
 
     await dbConnect();
 
-    // Fetch order with all details
     let order;
     try {
         order = await Order.findById(id).lean();
@@ -108,6 +106,53 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                                     </div>
                                 </div>
                             )}
+
+                            {/* Delivery & Contact */}
+                            <div>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Delivery & Contact</h3>
+                                <div className="space-y-4">
+                                    {/* Contact Info */}
+                                    <div className="bg-gray-100 p-4 rounded-xl border border-gray-200">
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Contact Details</span>
+                                        {order.contactDetails ? (
+                                            <div>
+                                                <p className="font-bold text-gray-900">{order.contactDetails.name}</p>
+                                                <p className="text-sm text-gray-600 font-mono">{order.contactDetails.phone}</p>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-500 italic">No contact info (Legacy Order)</p>
+                                        )}
+                                    </div>
+
+                                    {/* Address */}
+                                    <div className="bg-gray-100 p-4 rounded-xl border border-gray-200">
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Delivery Address</span>
+                                        <div className="text-sm text-gray-900">
+                                            {typeof order.deliveryAddress === 'string' ? (
+                                                <p className="whitespace-pre-wrap">{order.deliveryAddress || 'No address provided (Legacy Order)'}</p>
+                                            ) : (
+                                                <div className="space-y-1">
+                                                    <p className="font-medium">{order.deliveryAddress.houseNo}, {order.deliveryAddress.street}</p>
+                                                    {order.deliveryAddress.landmark && <p className="text-gray-500 text-xs">Landmark: {order.deliveryAddress.landmark}</p>}
+                                                    <p>{order.deliveryAddress.city}, {order.deliveryAddress.zip}</p>
+                                                    {order.deliveryAddress.fullFormatted && <p className="text-xs text-gray-400 mt-1">{order.deliveryAddress.fullFormatted}</p>}
+                                                    {order.deliveryAddress.coordinates && (
+                                                        <a
+                                                            href={`https://www.google.com/maps/search/?api=1&query=${order.deliveryAddress.coordinates.lat},${order.deliveryAddress.coordinates.lng}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1"
+                                                        >
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                                                            View on Google Maps
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Right: Print Image */}

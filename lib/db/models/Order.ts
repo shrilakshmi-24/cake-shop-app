@@ -7,9 +7,27 @@ export interface IOrder extends Document {
         shape: string;
         flavor: string;
         color: string;
+        design: string;
         message?: string;
         notes?: string;
         printImageUrl?: string;
+    };
+    contactDetails: {
+        name: string;
+        phone: string;
+    };
+    deliveryAddress: {
+        houseNo: string;
+        street: string;
+        landmark?: string;
+        city: string;
+        zip: string;
+        coordinates?: {
+            lat: number;
+            lng: number;
+        };
+        googleMapUrl?: string;
+        fullFormatted: string;
     };
     finalPrice: number;
     status: 'PLACED' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED';
@@ -24,10 +42,28 @@ const OrderSchema = new Schema<IOrder>({
     customizationSnapshot: {
         shape: { type: String, required: true },
         flavor: { type: String, required: true },
-        design: { type: String, required: true }, // Added based on Code Edit
-        message: { type: String }, // Added based on Code Edit
-        notes: { type: String }, // Added notes field
+        color: { type: String, required: true },
+        design: { type: String, required: true },
+        message: { type: String },
+        notes: { type: String },
         printImageUrl: { type: String }
+    },
+    contactDetails: {
+        name: { type: String, required: true },
+        phone: { type: String, required: true }
+    },
+    deliveryAddress: {
+        houseNo: { type: String, required: true },
+        street: { type: String, required: true },
+        landmark: { type: String },
+        city: { type: String, required: true },
+        zip: { type: String, required: true },
+        coordinates: {
+            lat: { type: Number },
+            lng: { type: Number }
+        },
+        googleMapUrl: { type: String },
+        fullFormatted: { type: String, required: true }
     },
     finalPrice: { type: Number, required: true },
     status: {
