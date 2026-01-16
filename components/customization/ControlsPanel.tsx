@@ -222,20 +222,28 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
             {/* Design Selection */}
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">6. Design Style</h3>
-                <div className="grid grid-cols-2 gap-3">
-                    {availableDesigns.map(d => (
-                        <button
-                            key={d}
-                            onClick={() => updateConfig('design', d)}
-                            className={`h-20 border rounded-xl flex items-center justify-center transition-all duration-200 relative overflow-hidden ${d === config.design
-                                ? 'border-gray-900 bg-gray-50 text-gray-900 font-bold'
-                                : 'border-gray-200 hover:border-gray-400 text-gray-600'
-                                }`}
-                        >
-                            <span className="capitalize text-sm z-10">{d.replace('_', ' ')}</span>
-                        </button>
-                    ))}
+                <div className="relative">
+                    <select
+                        value={config.design}
+                        onChange={(e) => updateConfig('design', e.target.value)}
+                        className="w-full appearance-none bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-gray-900 focus:border-gray-900 block p-4 pr-10 shadow-sm cursor-pointer hover:border-gray-300 transition-colors capitalize font-medium"
+                    >
+                        {availableDesigns.map((d) => (
+                            <option key={d} value={d} className="capitalize py-2">
+                                {d.replace('_', ' ')}
+                            </option>
+                        ))}
+                    </select>
+                    {/* Custom Arrow Icon */}
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                    </div>
                 </div>
+                <p className="mt-2 text-xs text-gray-400">
+                    Choose a topping style. We'll customize implementation based on the shape.
+                </p>
             </section>
 
             {/* Message On Cake Area */}

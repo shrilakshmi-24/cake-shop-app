@@ -2,6 +2,7 @@ import dbConnect from '@/lib/db/connect';
 import Cake from '@/lib/db/models/Cake';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
+import Review from '@/lib/db/models/Review';
 
 import { unstable_cache } from 'next/cache';
 
@@ -14,7 +15,34 @@ const getCakes = unstable_cache(
     await dbConnect();
     // Serialize to plain JSON objects to satisfy caching requirements
     const cakes = await Cake.find({ isActive: true }).lean();
-    return JSON.parse(JSON.stringify(cakes));
+
+    // Aggregation for Average Ratings
+    const ratings = await Review.aggregate([
+      {
+        $group: {
+          _id: "$cakeId",
+          averageRating: { $avg: "$rating" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Create a map for fast lookup
+    const ratingsMap = ratings.reduce((acc: any, curr: any) => {
+      acc[curr._id.toString()] = {
+        avg: curr.averageRating.toFixed(1),
+        count: curr.count
+      };
+      return acc;
+    }, {});
+
+    // Attach rating info to cakes
+    const cakesWithRatings = cakes.map((cake: any) => ({
+      ...cake,
+      rating: ratingsMap[cake._id.toString()] || null
+    }));
+
+    return JSON.parse(JSON.stringify(cakesWithRatings));
   },
   ['active-cakes'],
   { revalidate: 3600, tags: ['cakes'] }
@@ -58,6 +86,17 @@ export default async function Home() {
                 </div>
 
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{cake.name}</h3>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  {cake.rating ? (
+                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-full border border-yellow-100">
+                      <span className="text-yellow-500 text-xs">★</span>
+                      <span className="text-xs font-bold text-yellow-700">{cake.rating.avg}</span>
+                      <span className="text-xs text-yellow-600">({cake.rating.count})</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">No ratings yet</span>
+                  )}
+                </div>
                 <p className="text-sm text-gray-500 mb-6 px-4">
                   {cake.allowedShapes.length} Shapes • {cake.allowedFlavors.length} Flavors
                 </p>
