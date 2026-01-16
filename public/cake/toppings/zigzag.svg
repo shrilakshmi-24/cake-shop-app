@@ -1,0 +1,59 @@
+<svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Zigzag chevron pattern - constrained to fit heart shape */}
+      
+      {/* Top zigzag */}
+      <polyline
+        points="120,130 140,110 160,130 180,110 200,130 220,110 240,130 260,110 280,130"
+        stroke="#4A90E2"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      
+      {/* Second zigzag */}
+      <polyline
+        points="100,170 125,150 150,170 175,150 200,170 225,150 250,170 275,150 300,170"
+        stroke="#7CB9E8"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      
+      {/* Third zigzag - center */}
+      <polyline
+        points="100,210 125,190 150,210 175,190 200,210 225,190 250,210 275,190 300,210"
+        stroke="#4A90E2"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      
+      {/* Fourth zigzag */}
+      <polyline
+        points="110,250 140,230 170,250 200,230 230,250 260,230 290,250"
+        stroke="#7CB9E8"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      
+      {/* Bottom zigzag */}
+      <polyline
+        points="140,285 165,270 190,285 215,270 240,285 260,270"
+        stroke="#4A90E2"
+        strokeWidth="6"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>

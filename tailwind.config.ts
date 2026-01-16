@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+import colors from 'tailwindcss/colors';
+
 const config: Config = {
     content: [
         "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,7 +9,11 @@ const config: Config = {
         "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                primary: colors.rose,
+            }
+        },
     },
     plugins: [],
 };

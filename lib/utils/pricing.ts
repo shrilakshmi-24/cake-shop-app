@@ -2,7 +2,7 @@ import { CakeConfig, SHAPES, FLAVORS, COLORS, DESIGNS } from '@/lib/types/custom
 
 const BASE_PRICE = 30;
 
-const PRICES = {
+export const PRICES = {
     shape: {
         round: 0,
         square: 5,
@@ -30,19 +30,23 @@ const PRICES = {
         classic: 0,
         modern: 10,
         drip: 15,
-        naked: 5
+        naked: 5,
+        zigzag: 15,
+        gems: 20,
+        swirl: 12,
+        pearls: 18
     }
 };
 
-const WEIGHT_MULTIPLIERS: Record<string, number> = {
+export const WEIGHT_MULTIPLIERS: Record<string, number> = {
     '0.5 kg': 1,
     '1 kg': 2,
     '1.5 kg': 3,
     '2 kg': 4
 };
 
-export function calculatePrice(config: CakeConfig): number {
-    let price = BASE_PRICE;
+export function calculatePrice(config: CakeConfig, basePriceOverride?: number): number {
+    let price = basePriceOverride !== undefined ? basePriceOverride : BASE_PRICE;
     price += PRICES.shape[config.shape] || 0;
     price += PRICES.flavor[config.flavor] || 0;
     price += PRICES.color[config.color] || 0;

@@ -23,6 +23,7 @@ export const dynamic = 'force-dynamic';
 export default async function CustomizationPage({
     params,
 }: {
+    // Force rebuild to pick up new assets
     params: Promise<{ slug: string[] }>;
 }) {
     const { slug } = await params;

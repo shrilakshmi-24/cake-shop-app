@@ -18,7 +18,7 @@ export const COLOR_HEX_MAP: Record<string, string> = {
     blue: '#93c5fd',
     yellow: '#fde68a'
 };
-export const DESIGNS = ['classic', 'modern', 'drip', 'naked'] as const;
+export const DESIGNS = ['classic', 'modern', 'drip', 'naked', 'zigzag', 'gems', 'swirl', 'pearls'] as const;
 
 export type CakeShape = typeof SHAPES[number];
 export type CakeFlavor = typeof FLAVORS[number];
@@ -37,6 +37,7 @@ export interface CakeConfig {
     message: string;
     notes?: string;
     printImageUrl?: string;
+    referenceImageUrl?: string;
 }
 
 export const DEFAULT_CONFIG: CakeConfig = {

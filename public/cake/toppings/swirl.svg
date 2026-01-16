@@ -1,0 +1,95 @@
+<svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Swirl pattern - constrained to fit heart shape */}
+      
+      {/* Center large swirl */}
+      <path
+        d="M 200 180 Q 220 180 220 200 Q 220 220 200 220 Q 180 220 180 200 Q 180 185 190 180"
+        stroke="#8B4789"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="200" cy="200" r="4" fill="#8B4789" />
+      
+      {/* Top left swirl */}
+      <path
+        d="M 140 130 Q 155 130 155 145 Q 155 160 140 160 Q 125 160 125 145 Q 125 135 133 130"
+        stroke="#C77DC4"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="140" cy="145" r="3" fill="#C77DC4" />
+      
+      {/* Top right swirl */}
+      <path
+        d="M 260 130 Q 275 130 275 145 Q 275 160 260 160 Q 245 160 245 145 Q 245 135 253 130"
+        stroke="#C77DC4"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="260" cy="145" r="3" fill="#C77DC4" />
+      
+      {/* Left swirl */}
+      <path
+        d="M 120 200 Q 135 200 135 215 Q 135 230 120 230 Q 105 230 105 215 Q 105 205 113 200"
+        stroke="#8B4789"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="120" cy="215" r="3" fill="#8B4789" />
+      
+      {/* Right swirl */}
+      <path
+        d="M 280 200 Q 295 200 295 215 Q 295 230 280 230 Q 265 230 265 215 Q 265 205 273 200"
+        stroke="#8B4789"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="280" cy="215" r="3" fill="#8B4789" />
+      
+      {/* Bottom left swirl */}
+      <path
+        d="M 160 270 Q 175 270 175 285 Q 175 300 160 300 Q 145 300 145 285 Q 145 275 153 270"
+        stroke="#C77DC4"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="160" cy="285" r="3" fill="#C77DC4" />
+      
+      {/* Bottom right swirl */}
+      <path
+        d="M 240 270 Q 255 270 255 285 Q 255 300 240 300 Q 225 300 225 285 Q 225 275 233 270"
+        stroke="#C77DC4"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="240" cy="285" r="3" fill="#C77DC4" />
+      
+      {/* Small accent swirls */}
+      <path
+        d="M 180 240 Q 190 240 190 250 Q 190 260 180 260"
+        stroke="#8B4789"
+        strokeWidth="3"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 220 240 Q 230 240 230 250 Q 230 260 220 260"
+        stroke="#8B4789"
+        strokeWidth="3"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>

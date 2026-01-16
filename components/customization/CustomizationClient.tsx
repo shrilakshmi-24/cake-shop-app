@@ -64,6 +64,7 @@ export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake
                     <ControlsPanel
                         config={config}
                         cakeId={cakeId}
+                        basePrice={fetchedCake?.basePrice} // Pass basePrice
                         allowedOptions={fetchedCake ? {
                             shapes: fetchedCake.allowedShapes,
                             flavors: fetchedCake.allowedFlavors,

@@ -12,16 +12,16 @@ export async function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                 {/* 1. Left: Logo */}
                 <Link href="/" className="flex items-center gap-3 group shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xl shadow-red-200 shadow-lg group-hover:scale-110 transition-transform">C</div>
+                    <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white font-bold text-xl shadow-rose-200 shadow-lg group-hover:scale-110 transition-transform">C</div>
                     <span className="text-xl font-bold text-gray-900 tracking-tight">Cake Shop</span>
                 </Link>
 
                 {/* 2. Center: Navigation */}
                 <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-                    <Link href="/" className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
+                    <Link href="/" className="text-sm font-medium text-gray-600 hover:text-rose-600 transition-colors">
                         Home
                     </Link>
-                    <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
+                    <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-rose-600 transition-colors">
                         About Us
                     </Link>
                 </nav>
@@ -37,7 +37,7 @@ export async function Header() {
                             </Link>
                             <Link
                                 href="/register"
-                                className="text-sm font-bold bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-black transition-all shadow-lg shadow-gray-200 hover:shadow-gray-400"
+                                className="text-sm font-bold bg-rose-500 text-white px-5 py-2.5 rounded-full hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 hover:shadow-rose-400"
                             >
                                 Sign Up
                             </Link>

@@ -8,13 +8,14 @@ import {
     EGG_OPTIONS
 } from '@/lib/types/customization';
 import { useRouter } from 'next/navigation';
-import { calculatePrice } from '@/lib/utils/pricing';
+import { calculatePrice, PRICES } from '@/lib/utils/pricing';
 import { useState } from 'react';
 import { useOrder } from '@/contexts/OrderContext';
 
 interface ControlsPanelProps {
     config: CakeConfig;
     cakeId?: string;
+    basePrice?: number;
     allowedOptions?: {
         shapes: string[];
         flavors: string[];
@@ -30,7 +31,7 @@ interface ControlsPanelProps {
     onConfigChange?: (newConfig: CakeConfig) => void;
 }
 
-// Icons (unchanged)
+// Icons
 const ShapeIcons: Record<string, React.ReactNode> = {
     round: <circle cx="12" cy="12" r="10" />,
     square: <rect x="3" y="3" width="18" height="18" rx="2" />,
@@ -45,15 +46,15 @@ const FlavorMeta: Record<string, { desc: string, bg: string }> = {
     lemon: { desc: 'Zesty Lemon Curd', bg: 'bg-yellow-50' }
 };
 
-export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setImageFile, dynamicOptions, onConfigChange }: ControlsPanelProps) {
+export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, imageFile, setImageFile, dynamicOptions, onConfigChange }: ControlsPanelProps) {
     const router = useRouter();
-    const { setConfig: setContextConfig, setImageFile: setContextImageFile, setCakeId } = useOrder();
+    const { setConfig: setContextConfig, setImageFile: setContextImageFile, setCakeId, setOrderType, setBasePrice } = useOrder();
 
     // Local state for optional fields before they are committed to config
     const [message, setMessage] = useState(config.message || '');
     const [notes, setNotes] = useState(config.notes || '');
 
-    const price = calculatePrice(config);
+    const price = calculatePrice(config, basePrice);
 
     // Dynamic Filtering Logic
     const baseShapes = dynamicOptions?.shapes && dynamicOptions.shapes.length > 0 ? dynamicOptions.shapes : SHAPES;
@@ -76,6 +77,10 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
         setContextConfig(finalConfig);
         setContextImageFile(imageFile);
         setCakeId(cakeId);
+        setOrderType('CUSTOMIZED_CAKE');
+        if (basePrice) {
+            setBasePrice(basePrice);
+        }
 
         // Navigate to Checkout
         router.push('/checkout');
@@ -102,21 +107,29 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                     <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900">1. Choose Shape</h3>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {availableShapes.map(s => (
-                        <button
-                            key={s}
-                            onClick={() => updateConfig('shape', s)}
-                            className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 ${s === config.shape
-                                ? 'bg-gray-900 text-white shadow-lg scale-105'
-                                : 'bg-white border border-gray-100 text-gray-400 hover:border-gray-300 hover:text-gray-600'
-                                }`}
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                {ShapeIcons[s] || ShapeIcons.round}
-                            </svg>
-                            <span className="capitalize font-medium text-xs">{s.replace('_', ' ')}</span>
-                        </button>
-                    ))}
+                    {availableShapes.map(s => {
+                        const extraPrice = PRICES.shape[s as keyof typeof PRICES.shape] || 0;
+                        return (
+                            <button
+                                key={s}
+                                onClick={() => updateConfig('shape', s)}
+                                className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 ${s === config.shape
+                                    ? 'bg-rose-500 text-white shadow-lg scale-105'
+                                    : 'bg-white border border-gray-100 text-gray-400 hover:border-gray-300 hover:text-gray-600'
+                                    }`}
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    {ShapeIcons[s] || ShapeIcons.round}
+                                </svg>
+                                <span className="capitalize font-medium text-xs">{s.replace('_', ' ')}</span>
+                                {extraPrice > 0 && (
+                                    <span className={`absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${s === config.shape ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-600'}`}>
+                                        +₹{extraPrice}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </section>
 
@@ -124,28 +137,37 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">2. Select Flavor</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {availableFlavors.map(f => (
-                        <button
-                            key={f}
-                            onClick={() => updateConfig('flavor', f)}
-                            className={`p-4 rounded-xl flex items-center gap-4 text-left transition-all duration-200 border ${f === config.flavor
-                                ? `${FlavorMeta[f].bg} border-gray-900/10 ring-1 ring-gray-900 shadow-sm`
-                                : 'bg-white border-gray-100 hover:bg-gray-50'
-                                }`}
-                        >
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm ${f === config.flavor ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
-                                {f[0].toUpperCase()}
-                            </div>
-                            <div>
-                                <span className="block font-semibold text-gray-900 capitalize text-sm">{f.replace('_', ' ')}</span>
-                                <span className="block text-xs text-gray-500 mt-0.5">{FlavorMeta[f].desc}</span>
-                            </div>
-                        </button>
-                    ))}
+                    {availableFlavors.map(f => {
+                        const extraPrice = PRICES.flavor[f as keyof typeof PRICES.flavor] || 0;
+                        return (
+                            <button
+                                key={f}
+                                onClick={() => updateConfig('flavor', f)}
+                                className={`relative p-4 rounded-xl flex items-center gap-4 text-left transition-all duration-200 border ${f === config.flavor
+                                    ? `${FlavorMeta[f].bg} border-rose-500/10 ring-1 ring-rose-500 shadow-sm`
+                                    : 'bg-white border-gray-100 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm ${f === config.flavor ? 'bg-white shadow-sm' : 'bg-gray-100'}`}>
+                                    {f[0].toUpperCase()}
+                                </div>
+                                <div>
+                                    <span className="block font-semibold text-gray-900 capitalize text-sm">{f.replace('_', ' ')}</span>
+                                    <span className="block text-xs text-gray-500 mt-0.5">{FlavorMeta[f].desc}</span>
+                                </div>
+                                {extraPrice > 0 && (
+                                    <span className="absolute top-4 right-4 text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full">
+                                        +₹{extraPrice}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </section>
 
-            {/* Weight Selection */}
+            {/* Weight Selection (Weights are multipliers, handled differently usually, but let's leave as is if user only asked for extras on tiles) */}
+            {/* ... Weight Section ... */}
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">3. Select Weight</h3>
                 <div className="grid grid-cols-4 gap-3">
@@ -154,7 +176,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                             key={w}
                             onClick={() => updateConfig('weight', w)}
                             className={`py-3 rounded-xl border flex items-center justify-center font-medium text-sm transition-all duration-200 ${w === config.weight
-                                ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-105'
+                                ? 'bg-rose-500 text-white border-rose-500 shadow-lg scale-105'
                                 : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
                                 }`}
                         >
@@ -188,34 +210,38 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
             <section>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">5. Palette</h3>
                 <div className="flex flex-wrap gap-4">
-                    {availableColors.map(c => (
-                        <button
-                            key={c}
-                            onClick={() => updateConfig('color', c)}
-                            className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${c === config.color
-                                ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                                : 'hover:scale-110'
-                                }`}
-                        >
-                            <div
-                                className="w-full h-full rounded-full border border-gray-200 shadow-sm"
-                                style={{
-                                    backgroundColor: c.replace('pastel_', 'var(--color-)')
-                                }}
+                    {availableColors.map(c => {
+                        const extraPrice = PRICES.color[c as keyof typeof PRICES.color] || 0;
+                        return (
+                            <button
+                                key={c}
+                                onClick={() => updateConfig('color', c)}
+                                className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${c === config.color
+                                    ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
+                                    : 'hover:scale-110'
+                                    }`}
                             >
-                                <div className="w-full h-full rounded-full" style={{
-                                    backgroundColor:
-                                        c === 'pastel_red' ? '#fca5a5' :
-                                            c === 'pastel_blue' ? '#93c5fd' :
-                                                c === 'pastel_yellow' ? '#fde68a' :
-                                                    c === 'pastel_green' ? '#86efac' : '#eee'
-                                }}></div>
-                            </div>
-                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-400 capitalize opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                {c.replace('pastel_', '')}
-                            </span>
-                        </button>
-                    ))}
+                                <div
+                                    className="w-full h-full rounded-full border border-gray-200 shadow-sm"
+                                    style={{
+                                        backgroundColor: c.replace('pastel_', 'var(--color-)')
+                                    }}
+                                >
+                                    <div className="w-full h-full rounded-full" style={{
+                                        backgroundColor:
+                                            c === 'pastel_red' ? '#fca5a5' :
+                                                c === 'pastel_blue' ? '#93c5fd' :
+                                                    c === 'pastel_yellow' ? '#fde68a' :
+                                                        c === 'pastel_green' ? '#86efac' : '#eee'
+                                    }}></div>
+                                </div>
+                                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-medium text-gray-500 bg-white px-2 py-1 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 border border-gray-100">
+                                    {c.replace('pastel_', '')}
+                                    {extraPrice > 0 && <span className="text-rose-600 ml-1">+₹{extraPrice}</span>}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
             </section>
 
@@ -226,13 +252,16 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                     <select
                         value={config.design}
                         onChange={(e) => updateConfig('design', e.target.value)}
-                        className="w-full appearance-none bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-gray-900 focus:border-gray-900 block p-4 pr-10 shadow-sm cursor-pointer hover:border-gray-300 transition-colors capitalize font-medium"
+                        className="w-full appearance-none bg-white border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 block p-4 pr-10 shadow-sm cursor-pointer hover:border-gray-300 transition-colors capitalize font-medium"
                     >
-                        {availableDesigns.map((d) => (
-                            <option key={d} value={d} className="capitalize py-2">
-                                {d.replace('_', ' ')}
-                            </option>
-                        ))}
+                        {availableDesigns.map((d) => {
+                            const extraPrice = PRICES.design[d as keyof typeof PRICES.design] || 0;
+                            return (
+                                <option key={d} value={d} className="capitalize py-2">
+                                    {d.replace('_', ' ')} {extraPrice > 0 ? `(+₹${extraPrice})` : ''}
+                                </option>
+                            );
+                        })}
                     </select>
                     {/* Custom Arrow Icon */}
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
@@ -255,7 +284,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Message on cake (e.g. Happy Birthday)"
                     maxLength={30}
-                    className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-400 mb-2"
+                    className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-gray-400 mb-2"
                 />
                 <p className="text-xs text-gray-400 pl-1">Will be written on the cake board or top. Max 30 chars.</p>
             </section>
@@ -289,7 +318,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                                 </svg>
                             </div>
                             <h4 className="font-medium text-gray-900 mb-1">Upload something to print 🎂</h4>
-                            <p className="text-xs text-pink-600 font-semibold mb-2">+₹5.00</p>
+                            <p className="text-xs text-rose-600 font-semibold mb-2">+₹5.00</p>
                         </div>
                     )}
                 </div>
@@ -314,7 +343,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                             placeholder="Example: write instructions, allergies, etc."
                             rows={2}
                             maxLength={100}
-                            className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all resize-none placeholder:text-gray-400"
+                            className="w-full rounded-xl border border-gray-200 bg-white p-3 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none placeholder:text-gray-400"
                         />
                     </div>
                 </details>
@@ -330,7 +359,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                     </div>
                     <button
                         onClick={handleNext}
-                        className="px-10 py-4 bg-gray-900 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-black transition-all shadow-xl hover:shadow-2xl transform active:scale-95 flex items-center gap-2"
+                        className="px-10 py-4 bg-rose-500 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-rose-600 transition-all shadow-xl hover:shadow-2xl transform active:scale-95 flex items-center gap-2 shadow-rose-200"
                     >
                         Next: Delivery &rarr;
                     </button>

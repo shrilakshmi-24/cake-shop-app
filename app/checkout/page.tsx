@@ -10,7 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useToast } from '@/contexts/ToastContext';
 
 export default function CheckoutPage() {
-    const { config, imageFile, cakeId } = useOrder();
+    const { config, imageFile, cakeId, orderType, referenceImageFile, basePrice: contextBasePrice } = useOrder();
     const router = useRouter();
     const { data: session } = useSession();
     const { showToast } = useToast();
@@ -79,7 +79,7 @@ export default function CheckoutPage() {
 
     if (!config) return null;
 
-    const basePrice = calculatePrice(config);
+    const basePrice = calculatePrice(config, contextBasePrice);
     const printImageCharge = imageFile ? 5.00 : 0;
     const deliveryCharge = 40.00; // Fixed delivery charge
     const totalAmount = basePrice + printImageCharge + deliveryCharge;
@@ -126,6 +126,10 @@ export default function CheckoutPage() {
 
             // Image
             if (imageFile) formData.append('printImageUrl', imageFile);
+
+            // New Fields
+            if (orderType) formData.append('orderType', orderType);
+            if (referenceImageFile) formData.append('referenceImageUrl', referenceImageFile); // Using same key suffix convention, though it's a file here
 
             const result = await createOrder(formData);
 
@@ -317,7 +321,7 @@ export default function CheckoutPage() {
                             <button
                                 onClick={handlePlaceOrder}
                                 disabled={isOrdering}
-                                className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.98]"
+                                className="w-full py-4 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transform active:scale-[0.98] shadow-rose-200"
                             >
                                 {isOrdering ? 'Creating Order...' : 'Confirm & Pay (COD)'}
                             </button>

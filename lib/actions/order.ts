@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/db/connect';
 import Order from '@/lib/db/models/Order';
+import Cake from '@/lib/db/models/Cake';
 import { CakeConfig } from '@/lib/types/customization';
 import { auth } from '@/auth';
 
@@ -70,6 +71,20 @@ export async function createOrder(formData: FormData) {
             }
         }
 
+        const orderType = formData.get('orderType') as string || 'CUSTOMIZED_CAKE';
+        // Handle Reference Image
+        let referenceImageUrl;
+        const referenceImageFile = formData.get('referenceImageUrl') as File;
+
+        if (referenceImageFile && referenceImageFile.size > 0) {
+            try {
+                referenceImageUrl = await uploadImage(referenceImageFile);
+            } catch (e: any) {
+                console.error('User reference image upload failed', e);
+                return { success: false, error: `Failed to upload reference image: ${e.message}` };
+            }
+        }
+
         const config: CakeConfig = {
             shape: shape as any,
             flavor: flavor as any,
@@ -79,12 +94,13 @@ export async function createOrder(formData: FormData) {
             eggType: eggType as any,
             message,
             notes,
-            printImageUrl: printImageUrl
+            printImageUrl: printImageUrl,
+            referenceImageUrl: referenceImageUrl
         };
 
         console.log('Creating Order with Config:', JSON.stringify(config, null, 2));
 
-        // Server-side validation for Delivery Date & Time
+        // ... delivery validation ...
         const orderDate = new Date(deliveryDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -94,34 +110,52 @@ export async function createOrder(formData: FormData) {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays < 0 || diffDays > 6) {
-            return {
-                success: false,
-                error: 'You can place orders only up to 7 days in advance.'
-            };
+            return { success: false, error: 'You can place orders only up to 7 days in advance.' };
         }
 
         if (diffDays === 0) {
-            // Check for 2-hour buffer
             const now = new Date();
             const [hours, minutes] = deliveryTime.split(':').map(Number);
             const selectedTime = new Date();
             selectedTime.setHours(hours, minutes, 0, 0);
-
-            // Create a buffer time (now + 2 hours)
             const bufferTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-
             if (selectedTime < bufferTime) {
-                return {
-                    success: false,
-                    error: 'Same-day orders require at least 2 hours preparation time.'
-                };
+                return { success: false, error: 'Same-day orders require at least 2 hours preparation time.' };
             }
         }
 
+        // Logic for Cake ID:
+        // For EXISTING_CAKE and CUSTOMIZED_CAKE, cakeId is usually present.
+        // For IMAGE_REFERENCE_CAKE, it might be missing.
+        let safeCakeId: string | undefined = cakeId;
+        if (!safeCakeId && orderType === 'IMAGE_REFERENCE_CAKE') {
+            safeCakeId = undefined; // Let Mongoose handle it (it's optional now)
+        } else if (!safeCakeId) {
+            safeCakeId = '000000000000000000000000'; // Fallback for legacy flows
+        }
+
+        // Calculate Price based on Type if needed, or rely on client?
+
+
         // Create the order
+        // Calculate Base Price safely on server
+        let serverBasePrice = 30; // Default
+        if (orderType === 'IMAGE_REFERENCE_CAKE') {
+            serverBasePrice = 500;
+        } else if (safeCakeId && safeCakeId !== '000000000000000000000000') {
+            // Fetch Cake Price
+            // We need to import Cake model if not imported
+            // Assuming Cake model is available or we can find it
+            const cake = await Cake.findById(safeCakeId);
+            if (cake) serverBasePrice = cake.basePrice;
+        }
+
+        let finalPrice = calculatePrice(config, serverBasePrice) + (printImageUrl ? 5 : 0) + 40;
+
         const order = await Order.create({
             userId: (session.user as any).id,
-            cakeId: targetCakeId,
+            cakeId: safeCakeId,
+            orderType,
             customizationSnapshot: config,
             contactDetails: {
                 name: formData.get('contact_name'),
@@ -130,7 +164,7 @@ export async function createOrder(formData: FormData) {
             deliveryAddress: deliveryAddressObj,
             deliveryDate,
             deliveryTime,
-            finalPrice: calculatePrice(config) + (printImageUrl ? 5 : 0) + 40, // Base + Image + Delivery
+            finalPrice,
             status: 'PLACED'
         });
 

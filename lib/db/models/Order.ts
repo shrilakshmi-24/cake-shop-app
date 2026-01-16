@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IOrder extends Document {
     userId: string;
-    cakeId: mongoose.Types.ObjectId;
+    cakeId?: mongoose.Types.ObjectId;
     customizationSnapshot: {
         shape: string;
         flavor: string;
@@ -13,7 +13,9 @@ export interface IOrder extends Document {
         message?: string;
         notes?: string;
         printImageUrl?: string;
+        referenceImageUrl?: string;
     };
+    orderType: 'EXISTING_CAKE' | 'CUSTOMIZED_CAKE' | 'IMAGE_REFERENCE_CAKE';
     contactDetails: {
         name: string;
         phone: string;
@@ -42,7 +44,7 @@ export interface IOrder extends Document {
 
 const OrderSchema = new Schema<IOrder>({
     userId: { type: String, required: true },
-    cakeId: { type: Schema.Types.ObjectId, ref: 'Cake', required: true },
+    cakeId: { type: Schema.Types.ObjectId, ref: 'Cake' }, // Optional for IMAGE_REFERENCE_CAKE
     customizationSnapshot: {
         shape: { type: String, required: true },
         flavor: { type: String, required: true },
@@ -52,7 +54,13 @@ const OrderSchema = new Schema<IOrder>({
         eggType: { type: String, enum: ['egg', 'eggless'], required: true },
         message: { type: String },
         notes: { type: String },
-        printImageUrl: { type: String }
+        printImageUrl: { type: String },
+        referenceImageUrl: { type: String } // New: For reference images
+    },
+    orderType: {
+        type: String,
+        enum: ['EXISTING_CAKE', 'CUSTOMIZED_CAKE', 'IMAGE_REFERENCE_CAKE'],
+        default: 'CUSTOMIZED_CAKE'
     },
     contactDetails: {
         name: { type: String, required: true },

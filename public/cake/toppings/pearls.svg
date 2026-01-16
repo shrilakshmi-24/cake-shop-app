@@ -1,0 +1,52 @@
+<svg
+      width="400"
+      height="400"
+      viewBox="0 0 400 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Pearl border pattern - constrained to fit heart shape */}
+      {/* Top area - between the two lobes */}
+      <circle cx="200" cy="110" r="8" fill="#F8F8F8" />
+      
+      {/* Upper right curve */}
+      <circle cx="230" cy="115" r="8" fill="#F8F8F8" />
+      <circle cx="255" cy="130" r="8" fill="#F8F8F8" />
+      <circle cx="275" cy="150" r="8" fill="#F8F8F8" />
+      
+      {/* Right side */}
+      <circle cx="290" cy="175" r="8" fill="#F8F8F8" />
+      <circle cx="295" cy="205" r="8" fill="#F8F8F8" />
+      <circle cx="290" cy="235" r="8" fill="#F8F8F8" />
+      
+      {/* Lower right curve */}
+      <circle cx="275" cy="260" r="8" fill="#F8F8F8" />
+      <circle cx="255" cy="280" r="8" fill="#F8F8F8" />
+      <circle cx="230" cy="295" r="8" fill="#F8F8F8" />
+      
+      {/* Bottom point area */}
+      <circle cx="200" cy="310" r="8" fill="#F8F8F8" />
+      
+      {/* Lower left curve */}
+      <circle cx="170" cy="295" r="8" fill="#F8F8F8" />
+      <circle cx="145" cy="280" r="8" fill="#F8F8F8" />
+      <circle cx="125" cy="260" r="8" fill="#F8F8F8" />
+      
+      {/* Left side */}
+      <circle cx="110" cy="235" r="8" fill="#F8F8F8" />
+      <circle cx="105" cy="205" r="8" fill="#F8F8F8" />
+      <circle cx="110" cy="175" r="8" fill="#F8F8F8" />
+      
+      {/* Upper left curve */}
+      <circle cx="125" cy="150" r="8" fill="#F8F8F8" />
+      <circle cx="145" cy="130" r="8" fill="#F8F8F8" />
+      <circle cx="170" cy="115" r="8" fill="#F8F8F8" />
+      
+      {/* Inner pearl accents */}
+      <circle cx="200" cy="160" r="6" fill="#E8E8E8" />
+      <circle cx="245" cy="190" r="6" fill="#E8E8E8" />
+      <circle cx="230" cy="235" r="6" fill="#E8E8E8" />
+      <circle cx="200" cy="255" r="6" fill="#E8E8E8" />
+      <circle cx="170" cy="235" r="6" fill="#E8E8E8" />
+      <circle cx="155" cy="190" r="6" fill="#E8E8E8" />
+    </svg>
