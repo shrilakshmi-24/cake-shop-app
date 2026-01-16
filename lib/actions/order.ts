@@ -6,6 +6,7 @@ import { CakeConfig } from '@/lib/types/customization';
 import { auth } from '@/auth';
 
 import { uploadImage } from '@/lib/cloudinary';
+import { calculatePrice } from '@/lib/utils/pricing';
 
 export async function createOrder(formData: FormData) {
     try {
@@ -37,7 +38,6 @@ export async function createOrder(formData: FormData) {
         const lat = formData.get('address_lat') ? parseFloat(formData.get('address_lat') as string) : undefined;
         const lng = formData.get('address_lng') ? parseFloat(formData.get('address_lng') as string) : undefined;
 
-        const price = parseFloat(formData.get('price') as string);
         const cakeId = formData.get('cakeId') as string;
 
         if (!houseNo || !street || !city || !zip) {
@@ -130,7 +130,7 @@ export async function createOrder(formData: FormData) {
             deliveryAddress: deliveryAddressObj,
             deliveryDate,
             deliveryTime,
-            finalPrice: price,
+            finalPrice: calculatePrice(config) + (printImageUrl ? 5 : 0) + 40, // Base + Image + Delivery
             status: 'PLACED'
         });
 

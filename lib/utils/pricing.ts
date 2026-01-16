@@ -34,6 +34,13 @@ const PRICES = {
     }
 };
 
+const WEIGHT_MULTIPLIERS: Record<string, number> = {
+    '0.5 kg': 1,
+    '1 kg': 2,
+    '1.5 kg': 3,
+    '2 kg': 4
+};
+
 export function calculatePrice(config: CakeConfig): number {
     let price = BASE_PRICE;
     price += PRICES.shape[config.shape] || 0;
@@ -44,6 +51,11 @@ export function calculatePrice(config: CakeConfig): number {
     if (config.message) {
         price += 5; // Flat fee for message
     }
+
+    // Apply Weight Multiplier
+    // Default to 1 (0.5 kg) if weight is missing for some reason
+    const multiplier = WEIGHT_MULTIPLIERS[config.weight] || 1;
+    price = price * multiplier;
 
     return price;
 }

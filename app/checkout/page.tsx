@@ -190,7 +190,7 @@ export default function CheckoutPage() {
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         className="w-full rounded-xl border-gray-200 focus:ring-gray-900 focus:border-gray-900"
-                                        placeholder="9876543210"
+                                        placeholder="--"
                                         maxLength={10}
                                     />
                                 </div>
