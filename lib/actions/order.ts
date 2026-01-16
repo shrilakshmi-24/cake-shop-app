@@ -26,6 +26,8 @@ export async function createOrder(formData: FormData) {
         const eggType = formData.get('eggType') as string;
         const message = formData.get('message') as string;
         const notes = formData.get('notes') as string;
+        const deliveryDate = formData.get('deliveryDate') as string;
+        const deliveryTime = formData.get('deliveryTime') as string;
         // Address Fields
         const houseNo = formData.get('address_houseNo') as string;
         const street = formData.get('address_street') as string;
@@ -82,6 +84,40 @@ export async function createOrder(formData: FormData) {
 
         console.log('Creating Order with Config:', JSON.stringify(config, null, 2));
 
+        // Server-side validation for Delivery Date & Time
+        const orderDate = new Date(deliveryDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        orderDate.setHours(0, 0, 0, 0);
+
+        const diffTime = orderDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0 || diffDays > 6) {
+            return {
+                success: false,
+                error: 'You can place orders only up to 7 days in advance.'
+            };
+        }
+
+        if (diffDays === 0) {
+            // Check for 2-hour buffer
+            const now = new Date();
+            const [hours, minutes] = deliveryTime.split(':').map(Number);
+            const selectedTime = new Date();
+            selectedTime.setHours(hours, minutes, 0, 0);
+
+            // Create a buffer time (now + 2 hours)
+            const bufferTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+            if (selectedTime < bufferTime) {
+                return {
+                    success: false,
+                    error: 'Same-day orders require at least 2 hours preparation time.'
+                };
+            }
+        }
+
         // Create the order
         const order = await Order.create({
             userId: (session.user as any).id,
@@ -92,6 +128,8 @@ export async function createOrder(formData: FormData) {
                 phone: formData.get('contact_phone')
             },
             deliveryAddress: deliveryAddressObj,
+            deliveryDate,
+            deliveryTime,
             finalPrice: price,
             status: 'PLACED'
         });

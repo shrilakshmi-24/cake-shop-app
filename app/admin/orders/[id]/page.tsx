@@ -114,6 +114,20 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                             <div>
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Delivery & Contact</h3>
                                 <div className="space-y-4">
+                                    {/* Delivery Schedule */}
+                                    <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-bold text-indigo-500 uppercase tracking-widest block mb-1">Scheduled For</span>
+                                            <p className="font-bold text-indigo-900 text-lg">
+                                                {new Date(order.deliveryDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-xs font-bold text-indigo-500 uppercase tracking-widest block mb-1">Time</span>
+                                            <p className="font-mono text-xl font-bold text-indigo-900">{order.deliveryTime}</p>
+                                        </div>
+                                    </div>
+
                                     {/* Contact Info */}
                                     <div className="bg-gray-100 p-4 rounded-xl border border-gray-200">
                                         <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Contact Details</span>

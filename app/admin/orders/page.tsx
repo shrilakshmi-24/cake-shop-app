@@ -32,7 +32,7 @@ export default async function AdminOrdersPage() {
                     <table className="min-w-full divide-y divide-gray-100">
                         <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-8 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Order ID</th>
+                                <th className="px-8 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Delivery</th>
                                 <th className="px-8 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Customer</th>
                                 <th className="px-8 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Customization</th>
                                 <th className="px-8 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</th>
@@ -54,8 +54,18 @@ export default async function AdminOrdersPage() {
 
                                 return (
                                     <tr key={order._id.toString()} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-8 py-5 whitespace-nowrap text-sm font-mono text-gray-500">
-                                            {order._id.toString().substring(0, 8)}...
+                                        <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                            {/* Delivery Info Priority */}
+                                            <div>
+                                                <div className="flex items-center gap-1.5 text-indigo-700">
+                                                    <span className="text-xs">📅</span>
+                                                    <span>{new Date(order.deliveryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-gray-500 text-xs mt-1">
+                                                    <span>⏰</span>
+                                                    <span>{order.deliveryTime}</span>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-sm text-gray-900 font-medium">
                                             {/* Ideally we would populate user name here, using ID for now */}

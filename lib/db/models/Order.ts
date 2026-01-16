@@ -31,6 +31,8 @@ export interface IOrder extends Document {
         googleMapUrl?: string;
         fullFormatted: string;
     };
+    deliveryDate: string;
+    deliveryTime: string;
     finalPrice: number;
     status: 'PLACED' | 'ACCEPTED' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED';
     rejectionReason?: string;
@@ -69,6 +71,8 @@ const OrderSchema = new Schema<IOrder>({
         googleMapUrl: { type: String },
         fullFormatted: { type: String, required: true }
     },
+    deliveryDate: { type: String, required: true },
+    deliveryTime: { type: String, required: true },
     finalPrice: { type: Number, required: true },
     status: {
         type: String,

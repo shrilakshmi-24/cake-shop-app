@@ -16,6 +16,41 @@ export default function CheckoutPage() {
     const { showToast } = useToast();
 
     const [isOrdering, setIsOrdering] = useState(false);
+    const [formError, setFormError] = useState('');
+    const [deliveryDate, setDeliveryDate] = useState('');
+    const [deliveryTime, setDeliveryTime] = useState('');
+
+    // Date Logic
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 6);
+
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const minDateStr = formatDate(today);
+    const maxDateStr = formatDate(maxDate);
+
+    // Time Validation
+    const validateTime = (dateStr: string, timeStr: string) => {
+        if (!dateStr || !timeStr) return true;
+
+        const selectedDate = new Date(dateStr);
+        const selectedDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+        const currentDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        if (selectedDay.getTime() === currentDay.getTime()) {
+            const now = new Date();
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const selectedTime = new Date();
+            selectedTime.setHours(hours, minutes, 0, 0);
+
+            const bufferTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+            if (selectedTime < bufferTime) {
+                return false;
+            }
+        }
+        return true;
+    };
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState<AddressDetails>({
@@ -69,6 +104,9 @@ export default function CheckoutPage() {
             formData.append('message', config.message);
             if (config.notes) formData.append('notes', config.notes);
 
+            formData.append('deliveryDate', deliveryDate);
+            formData.append('deliveryTime', deliveryTime);
+
             // Contact
             formData.append('contact_name', name);
             formData.append('contact_phone', phone);
@@ -90,6 +128,19 @@ export default function CheckoutPage() {
             if (imageFile) formData.append('printImageUrl', imageFile);
 
             const result = await createOrder(formData);
+
+            if (result?.error) {
+                setFormError(result.error);
+                setIsOrdering(false);
+                return;
+            }
+
+            // Success handled by redirect in action, or:
+            if (result?.success === false) {
+                setFormError(result.error || 'Something went wrong');
+                setIsOrdering(false);
+                return;
+            }
 
             if (result.success) {
                 showToast('Order Placed Successfully! Redirecting...', 'success');
@@ -146,10 +197,59 @@ export default function CheckoutPage() {
                             </div>
                         </section>
 
-                        {/* 2. Delivery Address */}
-                        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        {/* Delivery Schedule */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                 <span className="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+                                Delivery Schedule
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                    <input
+                                        type="date"
+                                        min={minDateStr}
+                                        max={maxDateStr}
+                                        value={deliveryDate}
+                                        onChange={(e) => {
+                                            setDeliveryDate(e.target.value);
+                                            // Reset time if date changes to force re-validation
+                                            if (!validateTime(e.target.value, deliveryTime)) {
+                                                setDeliveryTime('');
+                                            }
+                                        }}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">Book up to 7 days in advance</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                                    <input
+                                        type="time"
+                                        value={deliveryTime}
+                                        onChange={(e) => {
+                                            if (validateTime(deliveryDate, e.target.value)) {
+                                                setDeliveryTime(e.target.value);
+                                                setFormError('');
+                                            } else {
+                                                setFormError('Same-day orders require at least 2 hours preparation time.');
+                                            }
+                                        }}
+                                        required
+                                        disabled={!deliveryDate}
+                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${!deliveryDate ? 'bg-gray-100 cursor-not-allowed' : 'bg-white border-gray-200'
+                                            }`}
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">Select delivery time</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Delivery Address */}
+                        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <span className="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span>
                                 Delivery Location
                             </h2>
                             <AddressForm value={address} onChange={setAddress} />
@@ -185,8 +285,15 @@ export default function CheckoutPage() {
                             </div>
 
                             {/* Price Breakdown */}
-                            <div className="space-y-3 mb-8">
-                                <div className="flex justify-between text-sm text-gray-600">
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                {formError && (
+                                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700 text-sm">
+                                        <span className="text-xl">⚠️</span>
+                                        {formError}
+                                    </div>
+                                )}
+
+                                <div className="flex items-center justify-between mb-2 text-sm text-gray-600">
                                     <span>Base Cake Price</span>
                                     <span>₹{basePrice.toFixed(2)}</span>
                                 </div>
