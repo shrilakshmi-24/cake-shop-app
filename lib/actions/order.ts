@@ -22,6 +22,8 @@ export async function createOrder(formData: FormData) {
         const flavor = formData.get('flavor') as string;
         const color = formData.get('color') as string;
         const design = formData.get('design') as string;
+        const weight = formData.get('weight') as string;
+        const eggType = formData.get('eggType') as string;
         const message = formData.get('message') as string;
         const notes = formData.get('notes') as string;
         // Address Fields
@@ -71,6 +73,8 @@ export async function createOrder(formData: FormData) {
             flavor: flavor as any,
             color: color as any,
             design: design as any,
+            weight: weight as any,
+            eggType: eggType as any,
             message,
             notes,
             printImageUrl: printImageUrl

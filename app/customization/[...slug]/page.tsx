@@ -37,6 +37,8 @@ export default async function CustomizationPage({
         flavor: 'vanilla',
         color: 'pastel_yellow',
         design: (dynamicToppings.length > 0 ? dynamicToppings[0] : 'classic') as CakeDesign, // Fallback to classic only if empty
+        weight: '0.5 kg',
+        eggType: 'eggless',
         message: ''
     };
 
@@ -64,6 +66,8 @@ export default async function CustomizationPage({
                 flavor: flavor as CakeFlavor,
                 color: color as CakeColor,
                 design: design as CakeDesign,
+                weight: '0.5 kg',
+                eggType: 'eggless',
                 message: ''
             };
         }
@@ -76,6 +80,8 @@ export default async function CustomizationPage({
                 flavor: flavor as CakeFlavor,
                 color: color as CakeColor,
                 design: design as CakeDesign,
+                weight: '0.5 kg',
+                eggType: 'eggless',
                 message: ''
             };
         }
@@ -96,6 +102,8 @@ export default async function CustomizationPage({
                     flavor: (fetchedCake.allowedFlavors[0] || 'vanilla') as CakeFlavor,
                     color: (fetchedCake.allowedColors[0] || 'pastel_yellow') as CakeColor,
                     design: (fetchedCake.allowedDesigns[0] || 'classic') as CakeDesign,
+                    weight: '0.5 kg',
+                    eggType: 'eggless',
                     message: ''
                 };
             }

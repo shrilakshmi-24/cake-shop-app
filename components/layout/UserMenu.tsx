@@ -29,24 +29,26 @@ export function UserMenu({ user, isAdmin }: UserMenuProps) {
                 </Link>
             )}
 
-            {/* User Link */}
+            {/* My Orders Link */}
             <Link
                 href="/orders"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
-                <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                    {user.name?.[0]?.toUpperCase() || 'U'}
-                </span>
-                <span className="hidden sm:inline">My Orders</span>
+                My Orders
             </Link>
 
             {/* Sign Out Button */}
             <button
                 onClick={handleSignOut}
-                className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors"
+                className="text-sm font-medium text-rose-600 hover:text-rose-500 transition-colors"
             >
                 Sign Out
             </button>
+
+            {/* Profile Icon */}
+            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600 border border-gray-200">
+                {user.name?.[0]?.toUpperCase() || 'U'}
+            </div>
         </div>
     );
 }

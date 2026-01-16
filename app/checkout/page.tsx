@@ -64,6 +64,8 @@ export default function CheckoutPage() {
             formData.append('flavor', config.flavor);
             formData.append('color', config.color);
             formData.append('design', config.design);
+            formData.append('weight', config.weight);
+            formData.append('eggType', config.eggType);
             formData.append('message', config.message);
             if (config.notes) formData.append('notes', config.notes);
 
@@ -166,7 +168,12 @@ export default function CheckoutPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-900 capitalize">{config.shape.replace('_', ' ')} Cake</h3>
-                                    <p className="text-sm text-gray-500 capitalize">{config.flavor} • {config.design}</p>
+                                    <p className="text-sm text-gray-500 capitalize">{config.flavor} • {config.design} • {config.weight}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${config.eggType === 'egg' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                                            {config.eggType}
+                                        </span>
+                                    </div>
                                     <div className="flex items-center gap-2 mt-2">
                                         <div className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: config.color.replace('pastel_', 'var(--color-)') }}></div>
                                         <span className="text-xs text-gray-400 capitalize">{config.color.replace('pastel_', '')}</span>

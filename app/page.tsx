@@ -3,14 +3,25 @@ import Cake from '@/lib/db/models/Cake';
 import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 
+import { unstable_cache } from 'next/cache';
+
 // Ensure data is fresh
-export const dynamic = 'force-dynamic';
+// Revalidate every hour
+export const revalidate = 3600;
+
+const getCakes = unstable_cache(
+  async () => {
+    await dbConnect();
+    // Serialize to plain JSON objects to satisfy caching requirements
+    const cakes = await Cake.find({ isActive: true }).lean();
+    return JSON.parse(JSON.stringify(cakes));
+  },
+  ['active-cakes'],
+  { revalidate: 3600, tags: ['cakes'] }
+);
 
 export default async function Home() {
-  await dbConnect();
-
-  // Fetch active cakes
-  const cakes = await Cake.find({ isActive: true }).lean();
+  const cakes = await getCakes();
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
@@ -42,7 +53,7 @@ export default async function Home() {
                   <Carousel images={cake.images || []} />
                   {/* Badge if needed */}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm border border-gray-100 z-10">
-                    Base: ₹${cake.basePrice}
+                    Base: ₹{cake.basePrice}
                   </div>
                 </div>
 

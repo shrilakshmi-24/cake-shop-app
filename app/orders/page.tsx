@@ -94,10 +94,11 @@ export default async function OrdersPage() {
                                         <div className="text-right">
                                             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Status</p>
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${order.status === 'PLACED' ? 'bg-gray-100 text-gray-600' :
-                                                order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700' :
-                                                    order.status === 'READY' ? 'bg-blue-100 text-blue-700' :
-                                                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                                                            'bg-red-100 text-red-700'
+                                                order.status === 'ACCEPTED' ? 'bg-indigo-100 text-indigo-700' :
+                                                    order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700' :
+                                                        order.status === 'READY' ? 'bg-blue-100 text-blue-700' :
+                                                            order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                                                'bg-red-100 text-red-700'
                                                 }`}>
                                                 {order.status}
                                             </span>

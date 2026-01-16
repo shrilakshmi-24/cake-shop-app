@@ -8,6 +8,8 @@ export interface IOrder extends Document {
         flavor: string;
         color: string;
         design: string;
+        weight: string;
+        eggType: 'egg' | 'eggless';
         message?: string;
         notes?: string;
         printImageUrl?: string;
@@ -30,7 +32,7 @@ export interface IOrder extends Document {
         fullFormatted: string;
     };
     finalPrice: number;
-    status: 'PLACED' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED';
+    status: 'PLACED' | 'ACCEPTED' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED';
     rejectionReason?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -44,6 +46,8 @@ const OrderSchema = new Schema<IOrder>({
         flavor: { type: String, required: true },
         color: { type: String, required: true },
         design: { type: String, required: true },
+        weight: { type: String, required: true },
+        eggType: { type: String, enum: ['egg', 'eggless'], required: true },
         message: { type: String },
         notes: { type: String },
         printImageUrl: { type: String }
@@ -68,7 +72,7 @@ const OrderSchema = new Schema<IOrder>({
     finalPrice: { type: Number, required: true },
     status: {
         type: String,
-        enum: ['PLACED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED'],
+        enum: ['PLACED', 'ACCEPTED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED'],
         default: 'PLACED'
     },
     rejectionReason: { type: String }

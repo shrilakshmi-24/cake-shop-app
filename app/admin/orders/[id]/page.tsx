@@ -48,10 +48,11 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                     <div className="bg-gray-50/50 border-b border-gray-100 p-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold border ${order.status === 'PLACED' ? 'bg-gray-100 text-gray-600 border-gray-200' :
-                                order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                                    order.status === 'READY' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' :
-                                            'bg-red-100 text-red-700 border-red-200'
+                                order.status === 'ACCEPTED' ? 'bg-indigo-100 text-indigo-700 border-indigo-200' :
+                                    order.status === 'PREPARING' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                        order.status === 'READY' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                            order.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' :
+                                                'bg-red-100 text-red-700 border-red-200'
                                 }`}>
                                 {order.status}
                             </span>
@@ -77,6 +78,8 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                                         { label: 'Flavor', value: order.customizationSnapshot.flavor },
                                         { label: 'Color', value: order.customizationSnapshot.color },
                                         { label: 'Design', value: order.customizationSnapshot.design },
+                                        { label: 'Weight', value: order.customizationSnapshot.weight },
+                                        { label: 'Type', value: order.customizationSnapshot.eggType },
                                     ].map((item) => (
                                         <div key={item.label} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                             <dt className="text-sm font-medium text-gray-500">{item.label}</dt>

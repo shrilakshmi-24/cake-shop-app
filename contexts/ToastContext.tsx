@@ -18,9 +18,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         show: false,
     });
 
-    const showToast = (message: string, type: ToastType = 'success') => {
+    const showToast = React.useCallback((message: string, type: ToastType = 'success') => {
         setToast({ message, type, show: true });
-    };
+    }, []);
 
     const closeToast = () => {
         setToast((prev) => ({ ...prev, show: false }));

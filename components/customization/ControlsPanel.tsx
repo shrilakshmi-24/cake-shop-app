@@ -3,7 +3,9 @@ import {
     SHAPES,
     FLAVORS,
     COLORS,
-    DESIGNS
+    DESIGNS,
+    WEIGHTS,
+    EGG_OPTIONS
 } from '@/lib/types/customization';
 import { useRouter } from 'next/navigation';
 import { calculatePrice } from '@/lib/utils/pricing';
@@ -143,9 +145,48 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
                 </div>
             </section>
 
+            {/* Weight Selection */}
+            <section>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">3. Select Weight</h3>
+                <div className="grid grid-cols-4 gap-3">
+                    {WEIGHTS.map(w => (
+                        <button
+                            key={w}
+                            onClick={() => updateConfig('weight', w)}
+                            className={`py-3 rounded-xl border flex items-center justify-center font-medium text-sm transition-all duration-200 ${w === config.weight
+                                ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-105'
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'
+                                }`}
+                        >
+                            {w}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
+            {/* Egg Preference */}
+            <section>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">4. Egg Preference</h3>
+                <div className="flex gap-4">
+                    {EGG_OPTIONS.map(opt => (
+                        <button
+                            key={opt}
+                            onClick={() => updateConfig('eggType', opt)}
+                            className={`flex-1 py-3 px-6 rounded-xl border font-bold text-sm uppercase tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${opt === config.eggType
+                                ? (opt === 'egg' ? 'bg-red-50 border-red-200 text-red-700 ring-1 ring-red-500' : 'bg-green-50 border-green-200 text-green-700 ring-1 ring-green-500')
+                                : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'
+                                }`}
+                        >
+                            <span className={`w-3 h-3 rounded-full ${opt === 'egg' ? 'bg-red-500' : 'bg-green-500'}`}></span>
+                            {opt}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
             {/* Color Selection */}
             <section>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">3. Palette</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">5. Palette</h3>
                 <div className="flex flex-wrap gap-4">
                     {availableColors.map(c => (
                         <button
@@ -180,7 +221,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
 
             {/* Design Selection */}
             <section>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">4. Design Style</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">6. Design Style</h3>
                 <div className="grid grid-cols-2 gap-3">
                     {availableDesigns.map(d => (
                         <button
@@ -199,7 +240,7 @@ export function ControlsPanel({ config, cakeId, allowedOptions, imageFile, setIm
 
             {/* Message On Cake Area */}
             <section>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">5. Message (Optional)</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">7. Message (Optional)</h3>
                 <input
                     type="text"
                     value={message}

@@ -8,8 +8,8 @@ export function AdminOrderActions({ order }: { order: any }) {
     const [reason, setReason] = useState('');
 
     const handleAccept = async () => {
-        if (confirm('Accept this order and move to PREPARING?')) {
-            await updateOrderStatus(order._id, 'PREPARING');
+        if (confirm('Accept this order?')) {
+            await updateOrderStatus(order._id, 'ACCEPTED');
         }
     };
 
@@ -65,12 +65,18 @@ export function AdminOrderActions({ order }: { order: any }) {
                         </>
                     )}
 
-                    {['PREPARING', 'READY'].includes(order.status) && (
+                    {['ACCEPTED', 'PREPARING', 'READY'].includes(order.status) && (
                         <button
-                            onClick={() => handleNext(order.status === 'PREPARING' ? 'READY' : 'DELIVERED')}
+                            onClick={() => handleNext(
+                                order.status === 'ACCEPTED' ? 'PREPARING' :
+                                    order.status === 'PREPARING' ? 'READY' : 'DELIVERED'
+                            )}
                             className="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-lg transition-colors shadow-sm border border-blue-100"
                         >
-                            Move to {order.status === 'PREPARING' ? 'Ready' : 'Delivered'} &rarr;
+                            Move to {
+                                order.status === 'ACCEPTED' ? 'Preparing' :
+                                    order.status === 'PREPARING' ? 'Ready' : 'Delivered'
+                            } &rarr;
                         </button>
                     )}
                 </>

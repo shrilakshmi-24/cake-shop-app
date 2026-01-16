@@ -70,9 +70,12 @@ export default async function AdminOrdersPage() {
                                                     </Link>
                                                 )}
                                                 <div>
-                                                    <span className="font-semibold text-gray-900 capitalize block">{order.customizationSnapshot.shape} Cake</span>
+                                                    <span className="font-semibold text-gray-900 capitalize block flex items-center gap-2">
+                                                        {order.customizationSnapshot.shape} Cake
+                                                        <span className={`w-2 h-2 rounded-full ${order.customizationSnapshot.eggType === 'egg' ? 'bg-red-500' : 'bg-green-500'}`} title={order.customizationSnapshot.eggType === 'egg' ? 'Contains Egg' : 'Eggless'}></span>
+                                                    </span>
                                                     <span className="block text-xs uppercase tracking-wide opacity-70 mt-0.5">
-                                                        {order.customizationSnapshot.flavor} / {order.customizationSnapshot.color}
+                                                        {order.customizationSnapshot.flavor} / {order.customizationSnapshot.color} / {order.customizationSnapshot.weight}
                                                     </span>
                                                 </div>
                                             </div>
@@ -85,10 +88,11 @@ export default async function AdminOrdersPage() {
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-sm">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'PLACED' ? 'bg-gray-50 text-gray-600 border-gray-200' :
-                                                order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
-                                                    order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                                        order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
-                                                            'bg-red-50 text-red-700 border-red-100'
+                                                order.status === 'ACCEPTED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
+                                                    order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
+                                                        order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                            order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
+                                                                'bg-red-50 text-red-700 border-red-100'
                                                 }`}>
                                                 {order.status}
                                             </span>
