@@ -3,6 +3,8 @@ import dbConnect from '@/lib/db/connect';
 import Order from '@/lib/db/models/Order';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Review from '@/lib/db/models/Review';
+import { ReviewButton } from '@/components/reviews/ReviewButton';
 
 // Force dynamic because we read headers/cookies for auth
 export const dynamic = 'force-dynamic';
@@ -20,6 +22,9 @@ export default async function OrdersPage() {
     const orders = await Order.find({ userId: (session.user as any).id })
         .sort({ createdAt: -1 })
         .lean();
+
+    const reviews = await Review.find({ userId: (session.user as any).id }).lean();
+    const reviewedOrderIds = new Set(reviews.map((r: any) => r.orderId.toString()));
 
     return (
         <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
@@ -106,6 +111,16 @@ export default async function OrdersPage() {
                                                 <p className="text-xs text-red-600 mt-1 max-w-[150px] leading-tight text-right ml-auto">
                                                     Reason: {order.rejectionReason}
                                                 </p>
+                                            )}
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex flex-col items-end gap-2 mt-2">
+                                            {order.status === 'DELIVERED' && (
+                                                <ReviewButton
+                                                    orderId={order._id.toString()}
+                                                    existingReview={reviewedOrderIds.has(order._id.toString())}
+                                                />
                                             )}
                                         </div>
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CakeConfig } from '@/lib/types/customization';
 import { CakePreview } from './CakePreview';
 import { ControlsPanel } from './ControlsPanel';
+import { ReviewsList } from '../reviews/ReviewsList';
 
 interface CustomizationClientProps {
     config: CakeConfig;
@@ -11,9 +12,10 @@ interface CustomizationClientProps {
     fetchedCake?: any;
     availableShapes: string[];
     availableToppings: string[];
+    reviews?: any[];
 }
 
-export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake, availableShapes, availableToppings }: CustomizationClientProps) {
+export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake, availableShapes, availableToppings, reviews = [] }: CustomizationClientProps) {
     // 1. Maintain Config State Locally to prevent full page reloads/remounts
     const [config, setConfig] = useState<CakeConfig>(initialConfig);
 
@@ -76,6 +78,9 @@ export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake
                         setImageFile={setImageFile}
                         onConfigChange={handleConfigChange}
                     />
+
+                    {/* Reviews Section */}
+                    {cakeId && <ReviewsList reviews={reviews} />}
                 </div>
             </div>
         </div>

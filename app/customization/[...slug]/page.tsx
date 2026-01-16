@@ -16,6 +16,7 @@ import {
 } from '@/lib/types/customization';
 import { getAvailableOptions } from '@/lib/assets';
 import { redirect } from 'next/navigation';
+import { getCakeReviews } from '@/lib/actions/review';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,6 +122,11 @@ export default async function CustomizationPage({
 
     // Dynamic Asset Loading (Already loaded above)
 
+    // Fetch Reviews if cakeId exists
+    let reviews = [];
+    if (cakeId) {
+        reviews = await getCakeReviews(cakeId);
+    }
 
     return (
         <CustomizationClient
@@ -129,6 +135,8 @@ export default async function CustomizationPage({
             fetchedCake={fetchedCake}
             availableShapes={dynamicShapes}
             availableToppings={dynamicToppings}
+            reviews={reviews}
         />
     );
 }
+
