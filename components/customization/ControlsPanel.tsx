@@ -216,6 +216,7 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
                             <button
                                 key={c}
                                 onClick={() => updateConfig('color', c)}
+                                aria-label={`Select color ${c.replace('pastel_', '')}`}
                                 className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${c === config.color
                                     ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
                                     : 'hover:scale-110'

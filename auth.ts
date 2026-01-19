@@ -12,10 +12,10 @@ const signInSchema = z.object({
     password: z.string().min(6),
 });
 
+import { authConfig } from '@/auth.config';
+
 export const config = {
-    theme: {
-        logo: '/cake-logo.png',
-    },
+    ...authConfig,
     providers: [
         Credentials({
             async authorize(credentials) {
@@ -41,36 +41,6 @@ export const config = {
             },
         }),
     ],
-    callbacks: {
-        authorized({ auth, request: { nextUrl } }) {
-            const isLoggedIn = !!auth?.user;
-            const isOnAdmin = nextUrl.pathname.startsWith('/admin');
-
-            if (isOnAdmin) {
-                if (isLoggedIn) return true;
-                return false;
-            }
-            return true;
-        },
-        jwt({ token, user }) {
-            if (user) {
-                token.role = (user as any).role;
-                // Explicitly cast ObjectId to string to prevent object/buffer issues
-                token.id = ((user as any)._id || user.id).toString();
-            }
-            return token;
-        },
-        session({ session, token }) {
-            if (session.user) {
-                (session.user as any).role = token.role;
-                (session.user as any).id = token.id || token.sub;
-            }
-            return session;
-        }
-    },
-    pages: {
-        signIn: '/login',
-    }
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
