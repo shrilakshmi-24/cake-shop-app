@@ -20,6 +20,8 @@ import { getCakeReviews } from '@/lib/actions/review';
 
 export const dynamic = 'force-dynamic';
 
+import { getOptions, seedOptions } from '@/lib/actions/options';
+
 export default async function CustomizationPage({
     params,
 }: {
@@ -27,8 +29,21 @@ export default async function CustomizationPage({
     params: Promise<{ slug: string[] }>;
 }) {
     const { slug } = await params;
+    const [cakeId, shape, flavor, color, design] = slug.length === 5
+        ? slug
+        : (slug.length === 4 ? [undefined, ...slug] : []);
+
+    // Fetch dynamic options
+    let options = await getOptions();
+
+    // Auto-seed if no options exist (First run optimization)
+    if (options.length === 0) {
+        await seedOptions();
+        options = await getOptions();
+    }
 
     // Dynamic Asset Loading (moved up for defaults)
+    // These will be replaced by dbOptions
     const dynamicShapes = getAvailableOptions('shapes');
     const dynamicToppings = getAvailableOptions('toppings');
 
@@ -46,16 +61,20 @@ export default async function CustomizationPage({
 
     let cakeId = '';
     let fetchedCake = null;
+    let existingReview = [];
 
-    // Check for 5 segments: [id, shape, flavor, color, design]
+    // Parse Slug Logic
     if (slug && slug.length >= 5) {
-        const [id, shape, flavor, color, design] = slug;
-        cakeId = id;
+        // [id, shape, flavor, color, design]
+        cakeId = slug[0];
+        const shape = slug[1];
+        const flavor = slug[2];
+        const color = slug[3];
+        const design = slug[4];
 
-        // Validation: Check against strict lists for Flavor/Color, but Dynamic lists for Shape/Design
+        // Validation logic
         const isShapeValid = dynamicShapes.includes(shape) || SHAPES.includes(shape as any);
         const isDesignValid = dynamicToppings.includes(design) || DESIGNS.includes(design as any);
-        // Note: We might want to be lenient on legacy/hardcoded ones too just in case
 
         if (
             isShapeValid &&
@@ -74,8 +93,11 @@ export default async function CustomizationPage({
             };
         }
     } else if (slug && slug.length === 4) {
-        // Legacy/Fallback support
-        const [shape, flavor, color, design] = slug;
+        // [shape, flavor, color, design] (No ID)
+        const shape = slug[0];
+        const flavor = slug[1];
+        const color = slug[2];
+        const design = slug[3];
         if (isValidConfig(shape, flavor, color, design)) {
             config = {
                 shape: shape as CakeShape,
@@ -88,56 +110,51 @@ export default async function CustomizationPage({
             };
         }
     } else if (slug && slug.length === 1) {
-        // Just the ID - Fetch defaults
+        // [id]
         cakeId = slug[0];
     }
 
-    // Fetch Cake if ID exists
+    // Fetch Cake Data
     if (cakeId) {
         await dbConnect();
         try {
             fetchedCake = await Cake.findById(cakeId).lean();
-            // If we have just an ID (length 1), apply defaults from DB
-            if (fetchedCake && slug.length === 1) {
-                config = {
-                    shape: (fetchedCake.allowedShapes[0] || 'round') as CakeShape,
-                    flavor: (fetchedCake.allowedFlavors[0] || 'vanilla') as CakeFlavor,
-                    color: (fetchedCake.allowedColors[0] || 'pastel_yellow') as CakeColor,
-                    design: (fetchedCake.allowedDesigns[0] || 'classic') as CakeDesign,
-                    weight: '0.5 kg',
-                    eggType: 'eggless',
-                    message: ''
-                };
+            if (fetchedCake) {
+                fetchedCake._id = fetchedCake._id.toString(); // Serialize ID
+
+                // If just ID provided, set config from cake defaults
+                if (slug.length === 1) {
+                    config = {
+                        shape: (fetchedCake.allowedShapes[0] || 'round') as CakeShape,
+                        flavor: (fetchedCake.allowedFlavors[0] || 'vanilla') as CakeFlavor,
+                        color: (fetchedCake.allowedColors[0] || 'pastel_yellow') as CakeColor,
+                        design: (fetchedCake.allowedDesigns[0] || 'classic') as CakeDesign,
+                        weight: '0.5 kg',
+                        eggType: 'eggless',
+                        message: ''
+                    };
+                }
+
+                // FORCE UNLOCK for dynamic options
+                if (fetchedCake.allowedDesigns) {
+                    fetchedCake.allowedDesigns = [];
+                }
             }
-        } catch (e) { }
-    }
-
-    if (fetchedCake) {
-        fetchedCake._id = fetchedCake._id.toString();
-        // FORCE UNLOCK: Clear restricted designs so the UI shows ALL dynamic options found
-        // This satisfies "provide this option to choose all the toppings"
-        if (fetchedCake.allowedDesigns) {
-            fetchedCake.allowedDesigns = [];
+            existingReview = await getCakeReviews(cakeId);
+        } catch (e) {
+            console.error("Error fetching cake:", e);
         }
-    }
-
-    // Dynamic Asset Loading (Already loaded above)
-
-    // Fetch Reviews if cakeId exists
-    let reviews = [];
-    if (cakeId) {
-        reviews = await getCakeReviews(cakeId);
     }
 
     return (
         <CustomizationClient
             config={config}
-            cakeId={cakeId}
+            cakeId={cakeId || undefined}
             fetchedCake={fetchedCake}
             availableShapes={dynamicShapes}
             availableToppings={dynamicToppings}
-            reviews={reviews}
+            reviews={existingReview}
+            dbOptions={options}
         />
     );
 }
-

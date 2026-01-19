@@ -13,9 +13,10 @@ interface CustomizationClientProps {
     availableShapes: string[];
     availableToppings: string[];
     reviews?: any[];
+    dbOptions?: any[]; // Dynamic options from DB
 }
 
-export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake, availableShapes, availableToppings, reviews = [] }: CustomizationClientProps) {
+export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake, availableShapes, availableToppings, reviews = [], dbOptions = [] }: CustomizationClientProps) {
     // 1. Maintain Config State Locally to prevent full page reloads/remounts
     const [config, setConfig] = useState<CakeConfig>(initialConfig);
 
@@ -75,6 +76,7 @@ export function CustomizationClient({ config: initialConfig, cakeId, fetchedCake
                             shapes: availableShapes,
                             toppings: availableToppings
                         }}
+                        dbOptions={dbOptions} // Pass DB options
                         imageFile={imageFile}
                         setImageFile={setImageFile}
                         onConfigChange={handleConfigChange}

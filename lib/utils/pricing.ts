@@ -45,13 +45,25 @@ export const WEIGHT_MULTIPLIERS: Record<string, number> = {
     '2 kg': 4
 };
 
-export function calculatePrice(config: CakeConfig, basePriceOverride?: number): number {
+export type PriceMap = {
+    shape: Record<string, number>;
+    flavor: Record<string, number>;
+    color: Record<string, number>;
+    design: Record<string, number>;
+};
+
+export function calculatePrice(config: CakeConfig, basePriceOverride?: number, priceMap?: PriceMap): number {
+    // Use provided priceMap or fallback to hardcoded PRICES
+    const activePrices = priceMap || PRICES;
+
     // 1. Calculate Scalable Base Components (Base + Shape + Flavor + Color)
     // These costs multiply with weight (more ingredients needed)
     let scalablePrice = basePriceOverride !== undefined ? basePriceOverride : BASE_PRICE;
-    scalablePrice += PRICES.shape[config.shape] || 0;
-    scalablePrice += PRICES.flavor[config.flavor] || 0;
-    scalablePrice += PRICES.color[config.color] || 0;
+    scalablePrice += activePrices.shape[config.shape] || 0;
+    scalablePrice += activePrices.flavor[config.flavor] || 0;
+
+    // Handle color price (safely access if it exists in map, fallbacks to 0)
+    scalablePrice += activePrices.color[config.color] || 0;
 
     // Apply Weight Multiplier to Scalable Base only
     const multiplier = WEIGHT_MULTIPLIERS[config.weight] || 1;
@@ -59,7 +71,9 @@ export function calculatePrice(config: CakeConfig, basePriceOverride?: number): 
 
     // 2. Add Flat Fees (Design + Message)
     // These are fixed service/labor/skill costs that don't necessarily scale linearly with weight
-    totalPrice += (PRICES.design as Record<string, number>)[config.design] || 0;
+    // Cast to record to handle the generic access if using dynamic map
+    const designPrices = activePrices.design as Record<string, number>;
+    totalPrice += designPrices[config.design] || 0;
 
     if (config.message) {
         totalPrice += 5; // Flat fee for message

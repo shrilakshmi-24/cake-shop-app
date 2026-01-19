@@ -8,8 +8,8 @@ import {
     EGG_OPTIONS
 } from '@/lib/types/customization';
 import { useRouter } from 'next/navigation';
-import { calculatePrice, PRICES } from '@/lib/utils/pricing';
-import { useState } from 'react';
+import { calculatePrice, PRICES, PriceMap } from '@/lib/utils/pricing';
+import { useState, useMemo } from 'react';
 import { useOrder } from '@/contexts/OrderContext';
 
 interface ControlsPanelProps {
@@ -26,6 +26,7 @@ interface ControlsPanelProps {
         shapes: string[];
         toppings: string[];
     };
+    dbOptions?: any[]; // Dynamic options from DB
     imageFile: File | null;
     setImageFile: (file: File | null) => void;
     onConfigChange?: (newConfig: CakeConfig) => void;
@@ -46,7 +47,7 @@ const FlavorMeta: Record<string, { desc: string, bg: string }> = {
     lemon: { desc: 'Zesty Lemon Curd', bg: 'bg-yellow-50' }
 };
 
-export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, imageFile, setImageFile, dynamicOptions, onConfigChange }: ControlsPanelProps) {
+export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, imageFile, setImageFile, dynamicOptions, dbOptions, onConfigChange }: ControlsPanelProps) {
     const router = useRouter();
     const { setConfig: setContextConfig, setImageFile: setContextImageFile, setCakeId, setOrderType, setBasePrice } = useOrder();
 
@@ -54,7 +55,34 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
     const [message, setMessage] = useState(config.message || '');
     const [notes, setNotes] = useState(config.notes || '');
 
-    const price = calculatePrice(config, basePrice);
+    // Convert dbOptions to PriceMap
+    const priceMap: PriceMap = useMemo(() => {
+        if (!dbOptions || dbOptions.length === 0) return PRICES as unknown as PriceMap;
+
+        const map: PriceMap = {
+            shape: {},
+            flavor: {},
+            color: {},
+            design: {}
+        };
+
+        dbOptions.forEach(opt => {
+            const type = opt.type as keyof PriceMap;
+            if (map[type]) {
+                map[type][opt.slug] = opt.price;
+            }
+        });
+
+        // Ensure defaults exist and cast to generic Record for type safety
+        return {
+            shape: { ...(PRICES.shape as Record<string, number>), ...map.shape },
+            flavor: { ...(PRICES.flavor as Record<string, number>), ...map.flavor },
+            color: { ...(PRICES.color as Record<string, number>), ...map.color },
+            design: { ...(PRICES.design as Record<string, number>), ...map.design }
+        };
+    }, [dbOptions]);
+
+    const price = calculatePrice(config, basePrice, priceMap);
 
     // Dynamic Filtering Logic
     const baseShapes = dynamicOptions?.shapes && dynamicOptions.shapes.length > 0 ? dynamicOptions.shapes : SHAPES;
@@ -211,7 +239,7 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 mb-4">5. Palette</h3>
                 <div className="flex flex-wrap gap-4">
                     {availableColors.map(c => {
-                        const extraPrice = PRICES.color[c as keyof typeof PRICES.color] || 0;
+                        const extraPrice = priceMap.color[c] || 0;
                         return (
                             <button
                                 key={c}
