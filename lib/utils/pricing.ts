@@ -46,20 +46,24 @@ export const WEIGHT_MULTIPLIERS: Record<string, number> = {
 };
 
 export function calculatePrice(config: CakeConfig, basePriceOverride?: number): number {
-    let price = basePriceOverride !== undefined ? basePriceOverride : BASE_PRICE;
-    price += PRICES.shape[config.shape] || 0;
-    price += PRICES.flavor[config.flavor] || 0;
-    price += PRICES.color[config.color] || 0;
-    price += (PRICES.design as Record<string, number>)[config.design] || 0;
+    // 1. Calculate Scalable Base Components (Base + Shape + Flavor + Color)
+    // These costs multiply with weight (more ingredients needed)
+    let scalablePrice = basePriceOverride !== undefined ? basePriceOverride : BASE_PRICE;
+    scalablePrice += PRICES.shape[config.shape] || 0;
+    scalablePrice += PRICES.flavor[config.flavor] || 0;
+    scalablePrice += PRICES.color[config.color] || 0;
+
+    // Apply Weight Multiplier to Scalable Base only
+    const multiplier = WEIGHT_MULTIPLIERS[config.weight] || 1;
+    let totalPrice = scalablePrice * multiplier;
+
+    // 2. Add Flat Fees (Design + Message)
+    // These are fixed service/labor/skill costs that don't necessarily scale linearly with weight
+    totalPrice += (PRICES.design as Record<string, number>)[config.design] || 0;
 
     if (config.message) {
-        price += 5; // Flat fee for message
+        totalPrice += 5; // Flat fee for message
     }
 
-    // Apply Weight Multiplier
-    // Default to 1 (0.5 kg) if weight is missing for some reason
-    const multiplier = WEIGHT_MULTIPLIERS[config.weight] || 1;
-    price = price * multiplier;
-
-    return price;
+    return totalPrice;
 }
