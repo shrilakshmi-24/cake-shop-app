@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/db/connect';
 import Option, { IOption, OptionType } from '@/lib/db/models/Option';
+import { revalidateTag, unstable_cache } from 'next/cache';
 
 // Hardcoded initial data for seeding
 const INITIAL_DATA = {
@@ -40,13 +41,68 @@ const INITIAL_DATA = {
     ]
 };
 
-export async function getOptions(type?: OptionType) {
-    await dbConnect();
-    const query = { isActive: true, ...(type && { type }) };
-    const options = await Option.find(query).sort({ price: 1 }).lean();
+// Cached getOptions function
+// Cached getOptions function
+export const getOptions = unstable_cache(
+    async (type?: OptionType) => {
+        await dbConnect();
+        const query = { isActive: true, ...(type && { type }) };
+        const options = await Option.find(query).sort({ price: 1 }).lean();
+        return JSON.parse(JSON.stringify(options));
+    },
+    ['options-data'], // Base key
+    { tags: ['options'] }
+);
 
-    // Serialize for client components
-    return JSON.parse(JSON.stringify(options));
+// Get all options including inactive ones for admin
+export async function getAdminOptions(type?: OptionType) {
+    await dbConnect();
+    const query = type ? { type } : {};
+    const options = await Option.find(query).sort({ type: 1, price: 1 }).lean();
+    return JSON.parse(JSON.stringify(options)) as IOption[];
+}
+
+export async function createOption(data: Partial<IOption>) {
+    try {
+        await dbConnect();
+
+        // Generate slug if not provided
+        if (!data.slug && data.name) {
+            data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        }
+
+        const option = await Option.create(data);
+        revalidateTag('options');
+        return { success: true, data: JSON.parse(JSON.stringify(option)) };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateOption(id: string, data: Partial<IOption>) {
+    try {
+        await dbConnect();
+        const option = await Option.findByIdAndUpdate(id, data, { new: true }).lean();
+        revalidateTag('options');
+        return { success: true, data: JSON.parse(JSON.stringify(option)) };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteOption(id: string) {
+    try {
+        await dbConnect();
+        // Soft delete by setting isActive to false, or hard delete?
+        // Let's implement hard delete for now as per "Delete" requirement, 
+        // but often soft delete is better. User specifically asked "Delete" so...
+        // Actually, let's just delete it.
+        await Option.findByIdAndDelete(id);
+        revalidateTag('options');
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
 }
 
 export async function seedOptions() {
@@ -73,5 +129,6 @@ export async function seedOptions() {
         }
     }
 
+    revalidateTag('options');
     return { success: true, count: results.length };
 }

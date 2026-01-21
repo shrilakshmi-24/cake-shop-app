@@ -29,9 +29,7 @@ export default async function CustomizationPage({
     params: Promise<{ slug: string[] }>;
 }) {
     const { slug } = await params;
-    const [cakeId, shape, flavor, color, design] = slug.length === 5
-        ? slug
-        : (slug.length === 4 ? [undefined, ...slug] : []);
+
 
     // Fetch dynamic options
     let options = await getOptions();
