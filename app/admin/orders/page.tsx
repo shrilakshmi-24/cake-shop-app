@@ -15,8 +15,9 @@ export default async function AdminOrdersPage() {
 
     await dbConnect();
 
-    // Fetch orders
+    // Fetch orders with populated cake details
     const orders = await Order.find({})
+        .populate({ path: 'cakeId', select: 'name images basePrice' })
         .sort({ createdAt: -1 })
         .lean();
 
@@ -27,7 +28,11 @@ export default async function AdminOrdersPage() {
         userId: order.userId.toString(),
         createdAt: order.createdAt?.toISOString(),
         updatedAt: order.updatedAt?.toISOString(),
-        cakeId: order.cakeId?.toString()
+        // Check if cakeId is populated (object) or just ID (if populate failed or not found)
+        cakeId: (order.cakeId && typeof order.cakeId === 'object') ? {
+            ...order.cakeId,
+            _id: order.cakeId._id.toString()
+        } : order.cakeId?.toString()
     }));
 
     return (

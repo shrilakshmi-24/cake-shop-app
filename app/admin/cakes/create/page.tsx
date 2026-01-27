@@ -43,6 +43,11 @@ export default function CreateCakePage() {
                     </div>
 
                     <div>
+                        <label className="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-2 border" placeholder="A brief description of the cake..." />
+                    </div>
+
+                    <div>
                         <label className="block text-sm font-medium text-gray-700">Product Images</label>
                         <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 bg-gray-50 hover:bg-gray-100 transition">
                             <div className="text-center">

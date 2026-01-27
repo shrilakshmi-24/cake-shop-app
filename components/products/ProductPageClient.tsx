@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrder } from '@/contexts/OrderContext';
+import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/contexts/ToastContext';
 import { CakeConfig, WEIGHTS, EGG_OPTIONS } from '@/lib/types/customization';
+import { calculatePrice } from '@/lib/utils/pricing';
 import { Carousel } from '@/components/ui/Carousel';
 import { ReviewsList } from '@/components/reviews/ReviewsList';
 
@@ -15,6 +18,8 @@ interface ProductPageClientProps {
 export function ProductPageClient({ cake, reviews }: ProductPageClientProps) {
     const router = useRouter();
     const { setConfig, setCakeId, setOrderType, setBasePrice } = useOrder();
+    const { addToCart } = useCart();
+    const { showToast } = useToast();
 
     // Local State for Simplified Options
     // Explicitly type weight as CakeWeight
@@ -23,34 +28,35 @@ export function ProductPageClient({ cake, reviews }: ProductPageClientProps) {
     const [message, setMessage] = useState('');
     const [notes, setNotes] = useState('');
 
-    // Calculate Price (Simplified: Base Price * Multiplier)
-    const basePrice = cake.basePrice;
-    const weightMultiplier =
-        weight === '0.5 kg' ? 1 :
-            weight === '1 kg' ? 2 :
-                weight === '1.5 kg' ? 3 : 4;
+    // Derived Config for Pricing & Actions
+    // We use memoization or just simple derivation on render since it's cheap
+    const config: CakeConfig = {
+        shape: cake.allowedShapes[0] || 'round',
+        flavor: cake.allowedFlavors[0] || 'vanilla',
+        color: cake.allowedColors[0] || 'pastel_yellow',
+        design: cake.allowedDesigns[0] || 'classic',
+        weight: weight,
+        eggType: eggType as 'egg' | 'eggless',
+        message: message,
+        notes: notes
+    };
 
-    // Egg adjustment (e.g. +50 for eggless, or simplified logic if needed)
-    // Using simple logic from pricing util: eggless often costs more or same?
-    // Let's assume consistent pricing logic with main app, 
-    // but for now, we just show the multiplied base price.
-    const price = basePrice * weightMultiplier;
+    // Calculate Price using shared utility
+    const price = calculatePrice(config, cake.basePrice);
+
+    const handleAddToCart = () => {
+        addToCart({
+            config,
+            cakeId: cake._id,
+            basePrice: cake.basePrice,
+            quantity: 1,
+            name: cake.name,
+            orderType: 'EXISTING_CAKE'
+        });
+        showToast('Added to cart!', 'success');
+    };
 
     const handleBuyNow = () => {
-        // Construct Config
-        // We use defaults for shape/flavor/color/design based on the cake's "allowed" first options
-        // This ensures the backend receives valid data even if we don't show controls for them.
-        const config: CakeConfig = {
-            shape: cake.allowedShapes[0] || 'round',
-            flavor: cake.allowedFlavors[0] || 'vanilla',
-            color: cake.allowedColors[0] || 'pastel_yellow',
-            design: cake.allowedDesigns[0] || 'classic',
-            weight,
-            eggType: eggType as 'egg' | 'eggless',
-            message,
-            notes
-        };
-
         setConfig(config);
         setCakeId(cake._id);
         setOrderType('EXISTING_CAKE');
@@ -160,12 +166,20 @@ export function ProductPageClient({ cake, reviews }: ProductPageClientProps) {
                                 <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Total Price</span>
                                 <span className="text-3xl font-mono font-bold text-gray-900">₹{price.toFixed(2)}</span>
                             </div>
-                            <button
-                                onClick={handleBuyNow}
-                                className="px-8 py-4 bg-rose-500 text-white rounded-full font-bold uppercase tracking-wider shadow-lg hover:bg-rose-600 hover:shadow-xl transition-all transform active:scale-95 shadow-rose-200"
-                            >
-                                Order Now &rarr;
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleAddToCart}
+                                    className="px-8 py-4 bg-white text-rose-500 border-2 border-rose-500 rounded-full font-bold uppercase tracking-wider hover:bg-rose-50 transition-all"
+                                >
+                                    Add to Cart
+                                </button>
+                                <button
+                                    onClick={handleBuyNow}
+                                    className="px-8 py-4 bg-rose-500 text-white rounded-full font-bold uppercase tracking-wider shadow-lg hover:bg-rose-600 hover:shadow-xl transition-all transform active:scale-95 shadow-rose-200"
+                                >
+                                    Order Now &rarr;
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

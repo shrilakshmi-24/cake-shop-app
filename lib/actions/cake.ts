@@ -3,7 +3,7 @@
 import dbConnect from '@/lib/db/connect';
 import Cake from '@/lib/db/models/Cake';
 import { auth } from '@/auth';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { uploadImage } from '@/lib/cloudinary';
 
@@ -20,6 +20,7 @@ export async function createCake(prevState: any, formData: FormData) {
 
     const name = formData.get('name') as string;
     const basePrice = parseFloat(formData.get('basePrice') as string);
+    const description = formData.get('description') as string;
     const allowedShapes = (formData.get('allowedShapes') as string).split(',').map(s => s.trim());
     const allowedFlavors = (formData.get('allowedFlavors') as string).split(',').map(s => s.trim());
     const allowedColors = (formData.get('allowedColors') as string).split(',').map(s => s.trim());
@@ -47,6 +48,7 @@ export async function createCake(prevState: any, formData: FormData) {
         await Cake.create({
             name,
             basePrice,
+            description,
             allowedShapes,
             allowedFlavors,
             allowedColors,
@@ -68,6 +70,7 @@ export async function updateCake(id: string, prevState: any, formData: FormData)
 
     const name = formData.get('name') as string;
     const basePrice = parseFloat(formData.get('basePrice') as string);
+    const description = formData.get('description') as string;
     const allowedShapes = (formData.get('allowedShapes') as string).split(',').map(s => s.trim());
     const allowedFlavors = (formData.get('allowedFlavors') as string).split(',').map(s => s.trim());
     const allowedColors = (formData.get('allowedColors') as string).split(',').map(s => s.trim());
@@ -94,6 +97,7 @@ export async function updateCake(id: string, prevState: any, formData: FormData)
         const updateData: any = {
             name,
             basePrice,
+            description,
             allowedShapes,
             allowedFlavors,
             allowedColors,
@@ -116,7 +120,9 @@ export async function updateCake(id: string, prevState: any, formData: FormData)
     }
 
     revalidatePath('/admin/cakes');
-    redirect('/admin/cakes');
+    revalidateTag('cakes');
+    revalidateTag('active-cakes');
+    return { message: 'Updated successfully' };
 }
 
 
@@ -126,4 +132,6 @@ export async function toggleCakeStatus(id: string, currentStatus: boolean) {
 
     await Cake.findByIdAndUpdate(id, { isActive: !currentStatus });
     revalidatePath('/admin/cakes');
+    revalidateTag('cakes');
+    revalidateTag('active-cakes');
 }

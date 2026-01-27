@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Carousel } from '@/components/ui/Carousel';
 import Review from '@/lib/db/models/Review';
 import { unstable_cache } from 'next/cache';
+import { calculatePrice } from '@/lib/utils/pricing';
+import { CakeConfig } from '@/lib/types/customization';
 
 // Ensure data is fresh
 // Revalidate every hour
@@ -92,7 +94,6 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
           {/* Special "Design Your Own" Card inserted first */}
-          {/* Special "Design Your Own" Card inserted first */}
           <Link href="/customization" className="group rounded-3xl p-8 bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-100 flex flex-col justify-between shadow-sm hover:shadow-xl hover:scale-[1.01] transition-all duration-300 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-40 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition-transform duration-700"></div>
             <div>
@@ -112,6 +113,19 @@ export default async function Home() {
             // Updated link to Product Page
             const productLink = `/products/${cake._id}`;
 
+            // Calculate Display Price to match Product Page
+            const defaultConfig: CakeConfig = {
+              shape: cake.allowedShapes[0] || 'round',
+              flavor: cake.allowedFlavors[0] || 'vanilla',
+              color: cake.allowedColors[0] || 'pastel_yellow',
+              design: cake.allowedDesigns[0] || 'classic',
+              weight: '0.5 kg', // Default weight
+              eggType: 'eggless', // Default preference (usually safe default or should match product page default)
+              message: '',
+              notes: ''
+            };
+            const displayPrice = calculatePrice(defaultConfig, cake.basePrice);
+
             return (
               <div key={cake._id.toString()} className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col items-center text-center">
                 {/* Visual Placeholder */}
@@ -119,7 +133,7 @@ export default async function Home() {
                   <Carousel images={cake.images || []} />
                   {/* Badge */}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm border border-gray-100 z-10">
-                    ₹{cake.basePrice}
+                    ₹{displayPrice.toFixed(2)}
                   </div>
                 </div>
 
@@ -146,12 +160,12 @@ export default async function Home() {
                   >
                     Order as is
                   </Link>
-                  <Link
+                  {/* <Link
                     href={`/customization/${cake._id}/round/vanilla/white/classic`} // Deep link to customization with this cake as base
                     className="py-3 px-4 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-900 hover:text-gray-900 transition-colors"
                   >
                     Customize
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             );

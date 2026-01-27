@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { UserMenu } from './UserMenu';
+import { CartButton } from '@/components/cart/CartButton';
 
 export async function Header() {
     const session = await auth();
@@ -28,6 +29,7 @@ export async function Header() {
 
                 {/* 3. Right: Actions */}
                 <div className="flex items-center gap-4 shrink-0">
+                    <CartButton />
                     {user ? (
                         <UserMenu user={user} isAdmin={isAdmin} />
                     ) : (

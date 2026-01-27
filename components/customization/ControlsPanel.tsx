@@ -8,9 +8,11 @@ import {
     EGG_OPTIONS
 } from '@/lib/types/customization';
 import { useRouter } from 'next/navigation';
-import { calculatePrice, PRICES, PriceMap } from '@/lib/utils/pricing';
+import { calculatePrice, PRICES, PriceMap, PRINT_IMAGE_COST } from '@/lib/utils/pricing';
 import { useState, useMemo } from 'react';
 import { useOrder } from '@/contexts/OrderContext';
+import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface ControlsPanelProps {
     config: CakeConfig;
@@ -50,6 +52,8 @@ const FlavorMeta: Record<string, { desc: string, bg: string }> = {
 export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, imageFile, setImageFile, dynamicOptions, dbOptions, onConfigChange }: ControlsPanelProps) {
     const router = useRouter();
     const { setConfig: setContextConfig, setImageFile: setContextImageFile, setCakeId, setOrderType, setBasePrice } = useOrder();
+    const { addToCart } = useCart();
+    const { showToast } = useToast();
 
     // Local state for optional fields before they are committed to config
     const [message, setMessage] = useState(config.message || '');
@@ -125,6 +129,22 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
                 : `/customization/${newConfig.shape}/${newConfig.flavor}/${newConfig.color}/${newConfig.design}`;
             router.push(url);
         }
+    };
+
+    const handleAddToCart = () => {
+        const finalConfig = { ...config, message, notes };
+
+        addToCart({
+            config: finalConfig,
+            cakeId: cakeId,
+            basePrice: basePrice || 300, // Fallback base price if not provided
+            quantity: 1,
+            imageFile: imageFile,
+            name: "Custom Cake", // Custom cakes don't have a specific name usually, or we could construct one
+            priceMap: priceMap,
+            orderType: 'CUSTOMIZED_CAKE'
+        });
+        showToast('Added to cart!', 'success');
     };
 
     return (
@@ -347,8 +367,8 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
                                 </svg>
                             </div>
                             <h4 className="font-medium text-gray-900 mb-1">Upload something to print 🎂</h4>
-                            <p className='font-sm text-gray-400'>Note: This image is printed on the cake</p>
-                            <p className="text-xs text-rose-600 font-semibold mb-2">+₹50.00</p>
+                            <p className="font-sm text-gray-400">Note: This image is printed on the cake</p>
+                            <p className="text-xs text-rose-600 font-semibold mb-2">+₹{PRINT_IMAGE_COST.toFixed(2)}</p>
                         </div>
                     )}
                 </div>
@@ -382,17 +402,24 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
             {/* Floating Action Bar */}
             <div className="fixed bottom-0 right-0 w-full lg:w-1/2 p-6 bg-white/90 backdrop-blur-md border-t border-gray-100 z-50">
                 <div className="flex items-center justify-between max-w-xl mx-auto lg:mr-auto lg:ml-0">
-                    {/* Subtotal Display */}
                     <div className="flex flex-col leading-tight">
                         <span className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Subtotal</span>
                         <span className="text-2xl font-bold text-gray-900 font-mono">₹{price.toFixed(2)}</span>
                     </div>
-                    <button
-                        onClick={handleNext}
-                        className="px-10 py-4 bg-rose-500 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-rose-600 transition-all shadow-xl hover:shadow-2xl transform active:scale-95 flex items-center gap-2 shadow-rose-200"
-                    >
-                        Next: Delivery &rarr;
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={handleAddToCart}
+                            className="px-6 py-4 bg-white text-rose-500 border-2 border-rose-500 rounded-full font-bold uppercase tracking-wider hover:bg-rose-50 transition-all text-sm"
+                        >
+                            Add to Cart
+                        </button>
+                        <button
+                            onClick={handleNext}
+                            className="px-10 py-4 bg-rose-500 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-rose-600 transition-all shadow-xl hover:shadow-2xl transform active:scale-95 flex items-center gap-2 shadow-rose-200"
+                        >
+                            Next: Delivery &rarr;
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

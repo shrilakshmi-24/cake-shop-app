@@ -107,8 +107,8 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                 <button
                     onClick={() => setIsUrgent(!isUrgent)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${isUrgent
-                            ? 'bg-red-50 border-red-200 text-red-700 shadow-sm ring-1 ring-red-500'
-                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                        ? 'bg-red-50 border-red-200 text-red-700 shadow-sm ring-1 ring-red-500'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                 >
                     <span className="relative flex h-3 w-3">
@@ -153,19 +153,55 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                                     </td>
                                     <td className="px-8 py-5 text-sm text-gray-600">
                                         <div className="flex items-center gap-3">
-                                            {order.customizationSnapshot.printImageUrl && (
+                                            {/* Image Logic: Standard (Existing) vs Custom (Print/Ref) */}
+                                            {order.orderType === 'EXISTING_CAKE' && order.cakeId && (
+                                                /* Ideally we populate cakeId to get the image, or it's fetched via API. 
+                                                   Since we don't have populate here in the client prop, we assume order might have cake details expanded 
+                                                   or we rely on a placeholder if not populated. But usually admin API populates it.
+                                                   Let's assume order.cakeId is populated or we show a generic 'Standard Cake' icon if not.
+                                                */
+                                                <div className="relative w-12 h-12 rounded overflow-hidden border border-gray-200 shrink-0">
+                                                    {/* Note: In a real app, ensure cakeId is populated with 'images' field. 
+                                                         If using simple Order model, we might need to fetch cake details or rely on name.
+                                                         For now, we'll try to show the cake image if available in cakeId object, else placeholder or rely on printImage if mistakenly set?
+                                                         Actually, EXISTING_CAKE usually doesn't have printImageUrl unless added.
+                                                         Let's check if 'cakeId' is an object with images.
+                                                     */
+                                                        (order.cakeId && (order.cakeId as any).images?.[0]) ? (
+                                                            <img src={(order.cakeId as any).images[0]} alt="Cake" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl">🎂</div>
+                                                        )}
+                                                </div>
+                                            )}
+
+                                            {/* Custom Cake Image Logic */}
+                                            {order.orderType !== 'EXISTING_CAKE' && order.customizationSnapshot.printImageUrl && (
                                                 <Link href={order.customizationSnapshot.printImageUrl} target="_blank" className="relative w-10 h-10 rounded overflow-hidden border border-gray-200 hover:ring-2 hover:ring-indigo-500 transition block shrink-0">
                                                     <img src={order.customizationSnapshot.printImageUrl} alt="Print" className="w-full h-full object-cover" />
                                                 </Link>
                                             )}
+
                                             <div>
                                                 <span className="font-semibold text-gray-900 capitalize block flex items-center gap-2">
-                                                    {order.customizationSnapshot.shape} Cake
+                                                    {/* Name Logic */}
+                                                    {order.orderType === 'EXISTING_CAKE' && (order.cakeId as any)?.name
+                                                        ? (order.cakeId as any).name
+                                                        : `${order.customizationSnapshot.shape} Cake`
+                                                    }
                                                     <span className={`w-2 h-2 rounded-full ${order.customizationSnapshot.eggType === 'egg' ? 'bg-red-500' : 'bg-green-500'}`} title={order.customizationSnapshot.eggType === 'egg' ? 'Contains Egg' : 'Eggless'}></span>
                                                 </span>
-                                                <span className="block text-xs uppercase tracking-wide opacity-70 mt-0.5">
-                                                    {order.customizationSnapshot.flavor} / {order.customizationSnapshot.color} / {order.customizationSnapshot.weight}
-                                                </span>
+
+                                                {/* Detail Logic: Hide complex stuff for Standard Cakes, show simplified */}
+                                                {order.orderType === 'EXISTING_CAKE' ? (
+                                                    <span className="block text-xs uppercase tracking-wide opacity-70 mt-0.5">
+                                                        {order.customizationSnapshot.weight} • {order.customizationSnapshot.flavor}
+                                                    </span>
+                                                ) : (
+                                                    <span className="block text-xs uppercase tracking-wide opacity-70 mt-0.5">
+                                                        {order.customizationSnapshot.flavor} / {order.customizationSnapshot.color} / {order.customizationSnapshot.weight}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         {order.customizationSnapshot.message && (
@@ -177,11 +213,11 @@ export function AdminOrdersTable({ orders }: AdminOrdersTableProps) {
                                     </td>
                                     <td className="px-8 py-5 whitespace-nowrap text-sm">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${order.status === 'PLACED' ? 'bg-gray-50 text-gray-600 border-gray-200' :
-                                                order.status === 'ACCEPTED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
-                                                    order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
-                                                        order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                                            order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
-                                                                'bg-red-50 text-red-700 border-red-100'
+                                            order.status === 'ACCEPTED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
+                                                order.status === 'PREPARING' ? 'bg-orange-50 text-orange-700 border-orange-100' :
+                                                    order.status === 'READY' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                        order.status === 'DELIVERED' ? 'bg-green-50 text-green-700 border-green-100' :
+                                                            'bg-red-50 text-red-700 border-red-100'
                                             }`}>
                                             {order.status}
                                         </span>
