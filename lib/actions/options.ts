@@ -8,15 +8,15 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 const INITIAL_DATA = {
     shape: [
         { slug: 'round', name: 'Round', price: 0 },
-        { slug: 'square', name: 'Square', price: 5 },
-        { slug: 'heart', name: 'Heart', price: 10 },
-        { slug: 'mini_heart', name: 'Mini Heart', price: 5 },
+        { slug: 'square', name: 'Square', price: 100 },
+        { slug: 'heart', name: 'Heart', price: 200 },
+        { slug: 'mini_heart', name: 'Mini Heart', price: 100 },
     ],
     flavor: [
         { slug: 'vanilla', name: 'Vanilla', price: 0, metadata: { desc: 'Classic Madagascan', bg: 'bg-amber-50' } },
-        { slug: 'chocolate', name: 'Chocolate', price: 5, metadata: { desc: 'Rich Belgian Dark', bg: 'bg-stone-100' } },
-        { slug: 'red_velvet', name: 'Red Velvet', price: 8, metadata: { desc: 'Cream Cheese Frosting', bg: 'bg-red-50' } },
-        { slug: 'lemon', name: 'Lemon', price: 4, metadata: { desc: 'Zesty Lemon Curd', bg: 'bg-yellow-50' } },
+        { slug: 'chocolate', name: 'Chocolate', price: 100, metadata: { desc: 'Rich Belgian Dark', bg: 'bg-stone-100' } },
+        { slug: 'red_velvet', name: 'Red Velvet', price: 150, metadata: { desc: 'Cream Cheese Frosting', bg: 'bg-red-50' } },
+        { slug: 'lemon', name: 'Lemon', price: 80, metadata: { desc: 'Zesty Lemon Curd', bg: 'bg-yellow-50' } },
     ],
     color: [
         { slug: 'pastel_yellow', name: 'Pastel Yellow', price: 0, metadata: { hex: '#fde68a' } },
@@ -24,20 +24,20 @@ const INITIAL_DATA = {
         { slug: 'pastel_blue', name: 'Pastel Blue', price: 0, metadata: { hex: '#93c5fd' } },
         { slug: 'pastel_green', name: 'Pastel Green', price: 0, metadata: { hex: '#86efac' } },
         // Premium Colors
-        { slug: 'red', name: 'Red', price: 2, metadata: { hex: '#fca5a5' } },
-        { slug: 'pink', name: 'Pink', price: 2, metadata: { hex: '#fca5a5' } },
-        { slug: 'blue', name: 'Blue', price: 2, metadata: { hex: '#93c5fd' } },
-        { slug: 'yellow', name: 'Yellow', price: 2, metadata: { hex: '#fde68a' } },
+        { slug: 'red', name: 'Red', price: 50, metadata: { hex: '#fca5a5' } },
+        { slug: 'pink', name: 'Pink', price: 50, metadata: { hex: '#fca5a5' } },
+        { slug: 'blue', name: 'Blue', price: 50, metadata: { hex: '#93c5fd' } },
+        { slug: 'yellow', name: 'Yellow', price: 50, metadata: { hex: '#fde68a' } },
     ],
     design: [
         { slug: 'classic', name: 'Classic', price: 0 },
-        { slug: 'modern', name: 'Modern', price: 10 },
-        { slug: 'drip', name: 'Drip', price: 15 },
-        { slug: 'naked', name: 'Naked', price: 5 },
-        { slug: 'zigzag', name: 'Zigzag', price: 15 },
-        { slug: 'gems', name: 'Gems', price: 20 },
-        { slug: 'swirl', name: 'Swirl', price: 12 },
-        { slug: 'pearls', name: 'Pearls', price: 18 },
+        { slug: 'modern', name: 'Modern', price: 200 },
+        { slug: 'drip', name: 'Drip', price: 250 },
+        { slug: 'naked', name: 'Naked', price: 100 },
+        { slug: 'zigzag', name: 'Zigzag', price: 250 },
+        { slug: 'gems', name: 'Gems', price: 350 },
+        { slug: 'swirl', name: 'Swirl', price: 220 },
+        { slug: 'pearls', name: 'Pearls', price: 300 },
     ]
 };
 

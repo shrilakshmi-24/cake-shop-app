@@ -1,19 +1,19 @@
 import { CakeConfig, SHAPES, FLAVORS, COLORS, DESIGNS } from '@/lib/types/customization';
 
-const BASE_PRICE = 30;
+const BASE_PRICE = 500;
 
 export const PRICES = {
     shape: {
         round: 0,
-        square: 5,
-        heart: 10,
-        mini_heart: 5
+        square: 100,
+        heart: 200,
+        mini_heart: 100
     },
     flavor: {
         vanilla: 0,
-        chocolate: 5,
-        red_velvet: 8,
-        lemon: 4
+        chocolate: 100,
+        red_velvet: 150,
+        lemon: 80
     },
     color: {
         pastel_yellow: 0,
@@ -21,20 +21,20 @@ export const PRICES = {
         pastel_blue: 0,
         pastel_green: 0,
         white: 0,
-        red: 2,
-        pink: 2,
-        blue: 2,
-        yellow: 2
+        red: 50,
+        pink: 50,
+        blue: 50,
+        yellow: 50
     },
     design: {
         classic: 0,
-        modern: 10,
-        drip: 15,
-        naked: 5,
-        zigzag: 15,
-        gems: 20,
-        swirl: 12,
-        pearls: 18
+        modern: 200,
+        drip: 250,
+        naked: 100,
+        zigzag: 250,
+        gems: 350,
+        swirl: 220,
+        pearls: 300
     }
 };
 

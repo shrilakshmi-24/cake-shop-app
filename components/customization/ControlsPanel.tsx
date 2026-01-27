@@ -347,7 +347,8 @@ export function ControlsPanel({ config, cakeId, basePrice, allowedOptions, image
                                 </svg>
                             </div>
                             <h4 className="font-medium text-gray-900 mb-1">Upload something to print 🎂</h4>
-                            <p className="text-xs text-rose-600 font-semibold mb-2">+₹5.00</p>
+                            <p className='font-sm text-gray-400'>Note: This image is printed on the cake</p>
+                            <p className="text-xs text-rose-600 font-semibold mb-2">+₹50.00</p>
                         </div>
                     )}
                 </div>

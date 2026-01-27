@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import NextImage from 'next/image';
 import { IOption, OptionType } from '@/lib/db/models/Option';
 import { createOption, updateOption, deleteOption } from '@/lib/actions/options';
+import { uploadOptionImageAction } from '@/lib/actions/upload';
 import { Toast } from '@/components/ui/Toast';
 
 interface OptionsManagerProps {
@@ -43,12 +44,30 @@ export default function OptionsManager({ initialOptions }: OptionsManagerProps) 
         setIsLoading(true);
 
         const formData = new FormData(e.currentTarget);
+
+        let imageUrl = formData.get('image') as string || undefined;
+
+        // Handle File Upload
+        const file = formData.get('file') as File;
+        if (file && file.size > 0) {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            const uploadResult = await uploadOptionImageAction(uploadFormData);
+
+            if (!uploadResult.success) {
+                setToast({ show: true, message: uploadResult.error || 'Upload failed', type: 'error' });
+                setIsLoading(false);
+                return;
+            }
+            imageUrl = uploadResult.url;
+        }
+
         const data: Partial<IOption> = {
             type: activeTab,
             name: formData.get('name') as string,
             price: Number(formData.get('price')),
             isActive: formData.get('isActive') === 'on',
-            image: formData.get('image') as string || undefined,
+            image: imageUrl,
         };
 
         // Handle metadata (simplified for now, ideally dynamic fields based on type)
@@ -143,7 +162,7 @@ export default function OptionsManager({ initialOptions }: OptionsManagerProps) 
                                     <div>
                                         <h4 className="font-bold text-gray-900">{option.name}</h4>
                                         <div className="flex items-center gap-2 text-xs text-gray-500">
-                                            <span className="bg-gray-100 px-2 py-0.5 rounded font-mono">${option.price}</span>
+                                            <span className="bg-gray-100 px-2 py-0.5 rounded font-mono">₹{option.price}</span>
                                             {option.isActive ? (
                                                 <span className="text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded">Active</span>
                                             ) : (
@@ -201,7 +220,7 @@ export default function OptionsManager({ initialOptions }: OptionsManagerProps) 
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Price ($)</label>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Price (₹)</label>
                                     <input
                                         name="price"
                                         type="number"
@@ -247,14 +266,33 @@ export default function OptionsManager({ initialOptions }: OptionsManagerProps) 
                             )}
 
                             {(activeTab === 'shape' || activeTab === 'design') && (
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Image Path</label>
-                                    <input
-                                        name="image"
-                                        defaultValue={editingOption?.image}
-                                        placeholder="/cake/shapes/..."
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
-                                    />
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Image</label>
+                                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-3">
+                                        <div>
+                                            <label className="text-xs text-gray-400 mb-1 block">Upload New Image</label>
+                                            <input
+                                                type="file"
+                                                name="file"
+                                                accept="image/*"
+                                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 transition-colors"
+                                            />
+                                        </div>
+                                        <div className="relative flex items-center py-1">
+                                            <div className="flex-grow border-t border-gray-200"></div>
+                                            <span className="flex-shrink-0 mx-2 text-xs text-gray-400">OR USE URL</span>
+                                            <div className="flex-grow border-t border-gray-200"></div>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-400 mb-1 block">Image Path / URL</label>
+                                            <input
+                                                name="image"
+                                                defaultValue={editingOption?.image}
+                                                placeholder="/cake/shapes/..."
+                                                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
