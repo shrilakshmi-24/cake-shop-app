@@ -45,6 +45,30 @@ export async function createOrder(formData: FormData) {
             return { success: false, error: 'Incomplete delivery address' };
         }
 
+        // --- Outlet Matching Logic ---
+        const { findNearestOutlet } = await import('@/lib/utils/outlet-matcher');
+        let assignedOutletId = undefined;
+
+        if (lat && lng) {
+            const nearest = await findNearestOutlet(lat, lng, 3); // 3km radius
+            if (!nearest) {
+                return {
+                    success: false,
+                    error: 'Sorry! We do not have any outlets within 3km of your location.'
+                };
+            }
+            assignedOutletId = nearest.outlet._id;
+        } else {
+            // If no coords, we can't verify radius. 
+            // Should we enforce coords? Checkout seems to enforce map selection or just address.
+            // Checkout page says: if (!address.lat || !address.lng) return showToast('Please select a location on the map', 'error');
+            // So we should expect coords.
+            if (!lat || !lng) {
+                return { success: false, error: 'Please select your precise location on the map.' };
+            }
+        }
+        // -----------------------------
+
         const deliveryAddressObj = {
             houseNo,
             street,
@@ -154,6 +178,7 @@ export async function createOrder(formData: FormData) {
 
         const order = await Order.create({
             userId: (session.user as any).id,
+            outletId: assignedOutletId,
             cakeId: safeCakeId,
             orderType,
             customizationSnapshot: config,

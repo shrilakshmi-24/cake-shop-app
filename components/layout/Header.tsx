@@ -31,7 +31,7 @@ export async function Header() {
                 <div className="flex items-center gap-4 shrink-0">
                     <CartButton />
                     {user ? (
-                        <UserMenu user={user} isAdmin={isAdmin} />
+                        <UserMenu user={user} isAdmin={isAdmin} isManager={(user as any)?.role === 'outlet_manager'} />
                     ) : (
                         <div className="flex items-center gap-4">
                             <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">

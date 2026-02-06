@@ -32,3 +32,13 @@ export async function rejectOrder(orderId: string, reason: string) {
     revalidatePath('/admin/orders');
     revalidatePath('/orders');
 }
+
+export async function reassignOrder(orderId: string, outletId: string) {
+    await checkAdmin();
+    await dbConnect();
+
+    await Order.findByIdAndUpdate(orderId, { outletId });
+    revalidatePath('/admin/orders');
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath('/orders');
+}

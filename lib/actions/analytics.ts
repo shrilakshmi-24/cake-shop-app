@@ -71,6 +71,34 @@ export async function getAnalyticsData() {
             { $limit: 5 }
         ]);
 
+        // 5. Port Performance (Outlets)
+        const outletPerformance = await Order.aggregate([
+            {
+                $group: {
+                    _id: "$outletId",
+                    count: { $sum: 1 },
+                    revenue: { $sum: "$finalPrice" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "outlets",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "outletInfo"
+                }
+            },
+            { $unwind: "$outletInfo" },
+            {
+                $project: {
+                    name: "$outletInfo.name",
+                    count: 1,
+                    revenue: 1
+                }
+            },
+            { $sort: { revenue: -1 } }
+        ]);
+
         return {
             stats: {
                 revenue: stats.totalRevenue,
@@ -79,7 +107,12 @@ export async function getAnalyticsData() {
             },
             statusData: statusDist.map(s => ({ status: s._id, count: s.count })),
             dailyData: dailyOrders.map(d => ({ date: d._id, count: d.count, revenue: d.revenue })),
-            popularFlavors: popularFlavors.map(f => ({ flavor: f._id, count: f.count }))
+            popularFlavors: popularFlavors.map(f => ({ flavor: f._id, count: f.count })),
+            outletPerformance: outletPerformance.map(o => ({
+                name: o.name,
+                count: o.count,
+                revenue: o.revenue
+            }))
         };
 
     } catch (error) {

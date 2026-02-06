@@ -1,43 +1,33 @@
 import { auth } from '@/auth';
 import dbConnect from '@/lib/db/connect';
 import Order from '@/lib/db/models/Order';
-import Outlet from '@/lib/db/models/Outlet'; // Import Outlet model
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-import { OutletReassignment } from '@/components/admin/OutletReassignment';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
+export default async function OutletOrderDetailPage({ params }: { params: { id: string } }) {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== 'admin') {
+    if (!session?.user || (session.user as any).role !== 'outlet_manager') {
         redirect('/login');
     }
 
     const { id } = await Promise.resolve(params);
+    const outletId = (session.user as any).outletId;
 
     await dbConnect();
 
     let order;
-    let allOutlets = [];
     try {
-        // Fetch order and populate outletId to get name
-        order = await Order.findById(id).populate('outletId').lean();
-
-        // Fetch all outlets for reassignment dropdown
-        const outletsRaw = await Outlet.find({}, 'name address _id').sort({ name: 1 }).lean();
-        allOutlets = JSON.parse(JSON.stringify(outletsRaw));
-
+        order = await Order.findOne({ _id: id, outletId }).lean();
     } catch (e) {
         notFound();
     }
 
     if (!order) {
+        // Either not found or not belonging to this outlet
         notFound();
     }
-
-    // Safety check for outletId after population
-    const assignedOutlet = order.outletId as any;
 
     return (
         <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
@@ -45,13 +35,13 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Order Details</h1>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Order Details (Outlet)</h1>
                         <p className="mt-1 text-sm text-gray-500">
                             ID: <span className="font-mono">{order._id.toString()}</span> • {new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
                         </p>
                     </div>
-                    <Link href="/admin/orders" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
-                        &larr; Back to Orders
+                    <Link href="/outlet" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                        &larr; Back to Dashboard
                     </Link>
                 </div>
 
@@ -126,24 +116,6 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                             <div>
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Delivery & Contact</h3>
                                 <div className="space-y-4">
-                                    {/* Outlet Assignment */}
-                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <span className="text-xs font-bold text-blue-500 uppercase tracking-widest block mb-1">Assigned Outlet</span>
-                                                <p className="font-bold text-blue-900 text-lg">
-                                                    {assignedOutlet ? assignedOutlet.name : 'Not Assigned'}
-                                                </p>
-                                                {assignedOutlet && <p className="text-xs text-blue-700">{assignedOutlet.address}</p>}
-                                            </div>
-                                        </div>
-                                        <OutletReassignment
-                                            orderId={order._id.toString()}
-                                            currentOutletId={assignedOutlet?._id?.toString()}
-                                            outlets={allOutlets}
-                                        />
-                                    </div>
-
                                     {/* Delivery Schedule */}
                                     <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex items-center justify-between">
                                         <div>

@@ -7,9 +7,10 @@ import { useToast } from '@/contexts/ToastContext';
 interface UserMenuProps {
     user: any;
     isAdmin: boolean;
+    isManager: boolean;
 }
 
-export function UserMenu({ user, isAdmin }: UserMenuProps) {
+export function UserMenu({ user, isAdmin, isManager }: UserMenuProps) {
     const { showToast } = useToast();
 
     const handleSignOut = async () => {
@@ -26,6 +27,16 @@ export function UserMenu({ user, isAdmin }: UserMenuProps) {
                     className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                     Admin
+                </Link>
+            )}
+
+            {/* Manager Link */}
+            {isManager && (
+                <Link
+                    href="/outlet"
+                    className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                    Outlet Portal
                 </Link>
             )}
 

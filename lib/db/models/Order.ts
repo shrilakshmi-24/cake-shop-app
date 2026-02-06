@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IOrder extends Document {
     userId: string;
+    outletId?: mongoose.Types.ObjectId;
     cakeId?: mongoose.Types.ObjectId;
     customizationSnapshot: {
         shape: string;
@@ -44,6 +45,7 @@ export interface IOrder extends Document {
 
 const OrderSchema = new Schema<IOrder>({
     userId: { type: String, required: true },
+    outletId: { type: Schema.Types.ObjectId, ref: 'Outlet' }, // Assigned outlet
     cakeId: { type: Schema.Types.ObjectId, ref: 'Cake' }, // Optional for IMAGE_REFERENCE_CAKE
     customizationSnapshot: {
         shape: { type: String, required: true },

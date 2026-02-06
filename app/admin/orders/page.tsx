@@ -26,6 +26,7 @@ export default async function AdminOrdersPage() {
         ...order,
         _id: order._id.toString(),
         userId: order.userId.toString(),
+        outletId: order.outletId?.toString(),
         createdAt: order.createdAt?.toISOString(),
         updatedAt: order.updatedAt?.toISOString(),
         // Check if cakeId is populated (object) or just ID (if populate failed or not found)

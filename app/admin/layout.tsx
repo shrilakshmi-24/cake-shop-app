@@ -59,6 +59,12 @@ export default async function AdminLayout({
                         <Link href="/admin/options" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all">
                             Options
                         </Link>
+                        <Link href="/admin/outlets" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all">
+                            Outlets
+                        </Link>
+                        <Link href="/admin/analytics" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg transition-all">
+                            Analytics
+                        </Link>
                         <Link href="/" className="text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition-all">
                             Exit
                         </Link>

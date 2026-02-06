@@ -84,15 +84,15 @@ export default async function AnalyticsPage() {
                                 <div key={s.status} className="space-y-1">
                                     <div className="flex items-center justify-between text-sm">
                                         <span className={`font-semibold capitalize ${s.status === 'DELIVERED' ? 'text-green-700' :
-                                                s.status === 'CANCELLED' ? 'text-red-700' : 'text-gray-700'
+                                            s.status === 'CANCELLED' ? 'text-red-700' : 'text-gray-700'
                                             }`}>{s.status.toLowerCase()}</span>
                                         <span className="text-gray-500 font-medium">{s.count}</span>
                                     </div>
                                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                                         <div
                                             className={`h-full rounded-full ${s.status === 'DELIVERED' ? 'bg-green-500' :
-                                                    s.status === 'CANCELLED' ? 'bg-red-500' :
-                                                        s.status === 'PLACED' ? 'bg-gray-400' : 'bg-indigo-500'
+                                                s.status === 'CANCELLED' ? 'bg-red-500' :
+                                                    s.status === 'PLACED' ? 'bg-gray-400' : 'bg-indigo-500'
                                                 }`}
                                             style={{ width: `${(s.count / stats.orders) * 100}%` }}
                                         />
@@ -132,7 +132,47 @@ export default async function AnalyticsPage() {
                         </table>
                     </div>
                 </div>
+
+                {/* Outlet Performance */}
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-900 mb-6">Outlet Performance</h3>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                            <thead>
+                                <tr className="border-b border-gray-100">
+                                    <th className="text-left py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Outlet Name</th>
+                                    <th className="text-right py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Orders</th>
+                                    <th className="text-right py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Revenue</th>
+                                    <th className="text-right py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {data.outletPerformance.map((outlet: any) => (
+                                    <tr key={outlet.name} className="group hover:bg-gray-50 transition-colors">
+                                        <td className="py-4 text-sm font-bold text-gray-900">
+                                            {outlet.name}
+                                        </td>
+                                        <td className="py-4 text-right text-sm text-gray-600 font-mono">{outlet.count}</td>
+                                        <td className="py-4 text-right text-sm text-gray-900 font-bold font-mono">
+                                            {fmt(outlet.revenue)}
+                                        </td>
+                                        <td className="py-4 text-right text-sm text-gray-400 pb-1">
+                                            {stats.orders > 0 ? Math.round((outlet.count / stats.orders) * 100) : 0}%
+                                        </td>
+                                    </tr>
+                                ))}
+                                {data.outletPerformance.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="py-8 text-center text-gray-500 text-sm">
+                                            No outlet data available
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </main>
+        </main >
     );
 }
