@@ -29,8 +29,6 @@ export const config = {
 
                     const passwordsMatch = await bcrypt.compare(password, user.password);
                     if (passwordsMatch) return user;
-
-                    console.log('Invalid credentials');
                     return null;
                 } catch (error) {
                     if (error instanceof ZodError) {

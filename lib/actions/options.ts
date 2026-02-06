@@ -72,7 +72,7 @@ export async function createOption(data: Partial<IOption>) {
         }
 
         const option = await Option.create(data);
-        revalidateTag('options');
+        revalidateTag('options', {});
         return { success: true, data: JSON.parse(JSON.stringify(option)) };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -83,7 +83,7 @@ export async function updateOption(id: string, data: Partial<IOption>) {
     try {
         await dbConnect();
         const option = await Option.findByIdAndUpdate(id, data, { new: true }).lean();
-        revalidateTag('options');
+        revalidateTag('options', {});
         return { success: true, data: JSON.parse(JSON.stringify(option)) };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -98,7 +98,7 @@ export async function deleteOption(id: string) {
         // but often soft delete is better. User specifically asked "Delete" so...
         // Actually, let's just delete it.
         await Option.findByIdAndDelete(id);
-        revalidateTag('options');
+        revalidateTag('options', {});
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -129,6 +129,6 @@ export async function seedOptions() {
         }
     }
 
-    revalidateTag('options');
+    revalidateTag('options', {});
     return { success: true, count: results.length };
 }

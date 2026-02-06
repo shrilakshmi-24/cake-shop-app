@@ -16,11 +16,11 @@ interface MongooseCache {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-// @ts-ignore
+// @ts-expect-error
 let cached = global.mongoose as MongooseCache;
 
 if (!cached) {
-    // @ts-ignore
+    // @ts-expect-error
     cached = global.mongoose = { conn: null, promise: null };
 }
 

@@ -122,7 +122,7 @@ export async function createOrder(formData: FormData) {
             referenceImageUrl: referenceImageUrl
         };
 
-        console.log('Creating Order with Config:', JSON.stringify(config, null, 2));
+
 
         // ... delivery validation ...
         const orderDate = new Date(deliveryDate);
@@ -177,7 +177,7 @@ export async function createOrder(formData: FormData) {
         let finalPrice = calculatePrice(config, serverBasePrice) + (printImageUrl ? 5 : 0) + 40;
 
         const order = await Order.create({
-            userId: (session.user as any).id,
+            userId: session.user.id,
             outletId: assignedOutletId,
             cakeId: safeCakeId,
             orderType,

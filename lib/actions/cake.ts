@@ -120,8 +120,8 @@ export async function updateCake(id: string, prevState: any, formData: FormData)
     }
 
     revalidatePath('/admin/cakes');
-    revalidateTag('cakes');
-    revalidateTag('active-cakes');
+    revalidateTag('cakes', {});
+    revalidateTag('active-cakes', {});
     return { message: 'Updated successfully' };
 }
 
@@ -132,6 +132,6 @@ export async function toggleCakeStatus(id: string, currentStatus: boolean) {
 
     await Cake.findByIdAndUpdate(id, { isActive: !currentStatus });
     revalidatePath('/admin/cakes');
-    revalidateTag('cakes');
-    revalidateTag('active-cakes');
+    revalidateTag('cakes', {});
+    revalidateTag('active-cakes', {});
 }
