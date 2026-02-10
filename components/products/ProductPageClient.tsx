@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrder } from '@/contexts/OrderContext';
 import { useCart } from '@/contexts/CartContext';
+import { useOptionalOutlet } from '@/contexts/OutletContext';
 import { useToast } from '@/contexts/ToastContext';
 import { CakeConfig, WEIGHTS, EGG_OPTIONS } from '@/lib/types/customization';
 import { calculatePrice } from '@/lib/utils/pricing';
@@ -20,6 +21,8 @@ export function ProductPageClient({ cake, reviews }: ProductPageClientProps) {
     const { setConfig, setCakeId, setOrderType, setBasePrice } = useOrder();
     const { addToCart } = useCart();
     const { showToast } = useToast();
+    const outletContext = useOptionalOutlet(); // Custom hook to be added
+    const outlet = outletContext?.outlet;
 
     // Local State for Simplified Options
     // Explicitly type weight as CakeWeight
@@ -62,7 +65,11 @@ export function ProductPageClient({ cake, reviews }: ProductPageClientProps) {
         setOrderType('EXISTING_CAKE');
         setBasePrice(cake.basePrice); // Set context base price
 
-        router.push('/checkout');
+        if (outlet) {
+            router.push(`/${outlet.slug}/checkout`);
+        } else {
+            router.push('/checkout');
+        }
     };
 
     return (

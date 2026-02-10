@@ -47,9 +47,9 @@ export async function createOrder(formData: FormData) {
 
         // --- Outlet Matching Logic ---
         const { findNearestOutlet } = await import('@/lib/utils/outlet-matcher');
-        let assignedOutletId = undefined;
+        let assignedOutletId = formData.get('outletId') as string | undefined;
 
-        if (lat && lng) {
+        if (!assignedOutletId && lat && lng) {
             const nearest = await findNearestOutlet(lat, lng, 3); // 3km radius
             if (!nearest) {
                 return {
@@ -57,12 +57,13 @@ export async function createOrder(formData: FormData) {
                     error: 'Sorry! We do not have any outlets within 3km of your location.'
                 };
             }
-            assignedOutletId = nearest.outlet._id;
-        } else {
-            // If no coords, we can't verify radius. 
-            // Should we enforce coords? Checkout seems to enforce map selection or just address.
-            // Checkout page says: if (!address.lat || !address.lng) return showToast('Please select a location on the map', 'error');
-            // So we should expect coords.
+            assignedOutletId = nearest.outlet._id.toString();
+        } else if (!assignedOutletId) {
+            // If no coords and no explicit outlet, we require coords to find one
+            // However, if we are just testing or legacy, maybe we let it slide? 
+            // The prompt implies strict location.
+            // But if I am on outlet site, I have outletId.
+            // If I am on global site, I need coords.
             if (!lat || !lng) {
                 return { success: false, error: 'Please select your precise location on the map.' };
             }

@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IOutlet extends Document {
     name: string;
+    slug: string;
     address: string;
     coordinates: {
         lat: number;
@@ -15,6 +16,7 @@ export interface IOutlet extends Document {
 const OutletSchema = new Schema<IOutlet>({
     name: { type: String, required: true },
     address: { type: String, required: true },
+    slug: { type: String, unique: true, trim: true }, // URL path segment
     coordinates: {
         lat: { type: Number, required: true },
         lng: { type: Number, required: true }

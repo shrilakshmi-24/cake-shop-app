@@ -5,6 +5,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { AddressForm, AddressDetails } from '@/components/customization/AddressForm';
+import { useOptionalOutlet } from '@/contexts/OutletContext';
 import { calculatePrice, PRINT_IMAGE_COST } from '@/lib/utils/pricing';
 import { createOrder } from '@/lib/actions/order';
 import { useSession } from 'next-auth/react';
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
     const searchParams = useSearchParams();
     const { data: session } = useSession();
     const { showToast } = useToast();
+    const outletContext = useOptionalOutlet();
 
     const isCartSource = searchParams.get('source') === 'cart';
 
@@ -138,8 +140,9 @@ export default function CheckoutPage() {
             // Ideally current backend: `let finalPrice = ... + 40;`
             // Yes, each order has +40.
             // For MVP Cart, paying delivery per cake is acceptable or we should modify backend.
-            // OPTION: We'll accept per-cake delivery for MVP to allow 'Split Orders'.
             // Or we could try to hack it by sending a flag to skip delivery? No unsafe.
+
+            const outletId = outletContext?.outlet?._id;
 
             const results = [];
 
@@ -182,6 +185,9 @@ export default function CheckoutPage() {
 
                     // Image
                     if (item.imageFile) formData.append('printImageUrl', item.imageFile);
+
+                    // Outlet
+                    if (outletId) formData.append('outletId', outletId.toString());
 
                     // New Fields
                     if (item.orderType) formData.append('orderType', item.orderType);

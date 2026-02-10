@@ -7,8 +7,9 @@ export interface ICake extends Document {
     allowedFlavors: string[];
     allowedColors: string[];
     allowedDesigns: string[];
-    isActive: boolean;
-    images: string[];
+    isActive: { type: Boolean, default: true };
+    outletIds: mongoose.Types.ObjectId[];
+    images: { type: [String], default: [] };
     description?: string;
 }
 
@@ -20,6 +21,7 @@ const CakeSchema = new Schema<ICake>({
     allowedColors: [{ type: String }],
     allowedDesigns: [{ type: String }],
     isActive: { type: Boolean, default: true },
+    outletIds: [{ type: Schema.Types.ObjectId, ref: 'Outlet' }], // Available at these outlets
     images: { type: [String], default: [] },
     description: { type: String }
 }, { timestamps: true });
