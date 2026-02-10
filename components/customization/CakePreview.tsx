@@ -41,24 +41,30 @@ export function CakePreview({ config, printImageFile }: CakePreviewProps) {
                 {/* 2. Topping / Design Layer (Transparent PNG) */}
                 <div className="absolute inset-0 z-20 pointer-events-none">
                     {/* Only render if we have a valid topping URL (sanity check handled by page defaults now) */}
-                    <img
-                        src={`/cake/toppings/${design}.svg`}
-                        alt={`${design} design`}
-                        className="w-full h-full object-contain"
-                        onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
+                    <div className="relative w-full h-full">
+                        <Image
+                            src={`/cake/toppings/${design}.svg`}
+                            alt={`${design} design`}
+                            fill
+                            className="object-contain"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* 3. User Print Image (Topmost) */}
                 {printImageUrl && (
                     <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
                         <div className="w-1/3 h-1/3 relative transform -translate-y-4">
-                            <img
+                            <Image
                                 src={printImageUrl}
                                 alt="Print Preview"
-                                className="w-full h-full object-contain rounded-md shadow-sm opacity-90"
+                                fill
+                                unoptimized
+                                className="object-contain rounded-md shadow-sm opacity-90"
                             />
                         </div>
                     </div>

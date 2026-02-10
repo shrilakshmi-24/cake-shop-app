@@ -1,14 +1,14 @@
 'use server';
 
 import dbConnect from '@/lib/db/connect';
-import Order from '@/lib/db/models/Order';
+import Order, { IOrder } from '@/lib/db/models/Order';
 import { auth } from '@/auth';
 
 export async function getAnalyticsData() {
     try {
         const session = await auth();
         // Strict Admin Check
-        if (!session?.user || (session.user as any).role !== 'admin') {
+        if (!session?.user || (session.user as { role?: string }).role !== 'admin') {
             throw new Error('Unauthorized');
         }
 

@@ -7,11 +7,11 @@ import { revalidatePath } from 'next/cache';
 
 export async function getOutletOrders() {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== 'outlet_manager') {
+    if (!session?.user || (session.user as { role?: string }).role !== 'outlet_manager') {
         throw new Error('Unauthorized');
     }
 
-    const outletId = (session.user as any).outletId;
+    const outletId = (session.user as { outletId?: string }).outletId;
     if (!outletId) {
         throw new Error('No outlet assigned to this manager');
     }
@@ -27,11 +27,11 @@ export async function getOutletOrders() {
 
 export async function updateOutletOrderStatus(orderId: string, status: string) {
     const session = await auth();
-    if (!session?.user || (session.user as any).role !== 'outlet_manager') {
+    if (!session?.user || (session.user as { role?: string }).role !== 'outlet_manager') {
         throw new Error('Unauthorized');
     }
 
-    const outletId = (session.user as any).outletId;
+    const outletId = (session.user as { outletId?: string }).outletId;
 
     await dbConnect();
 

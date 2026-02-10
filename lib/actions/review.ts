@@ -22,7 +22,7 @@ export async function submitReview(orderId: string, rating: number, message: str
         // Verify Order
         const order = await Order.findOne({
             _id: orderId,
-            userId: (session.user as any).id
+            userId: (session.user as { id: string }).id
         });
 
         if (!order) {
@@ -41,7 +41,7 @@ export async function submitReview(orderId: string, rating: number, message: str
 
         // Create Review
         await Review.create({
-            userId: (session.user as any).id,
+            userId: (session.user as { id: string }).id,
             userName: session.user.name || 'Anonymous',
             cakeId: order.cakeId,
             orderId: order._id,

@@ -15,14 +15,14 @@ export async function createOutlet(data: Partial<IOutlet>) {
     }
 }
 
-import Order from '@/lib/db/models/Order'; // Ensure Order model is imported
+
 
 export async function getOutlets() {
     await dbConnect();
     try {
         const outlets = await Outlet.find({}).sort({ createdAt: -1 });
         return JSON.parse(JSON.stringify(outlets));
-    } catch (error) {
+    } catch {
         throw new Error('Failed to fetch outlets');
     }
 }
@@ -33,7 +33,7 @@ export async function updateOutlet(id: string, data: Partial<IOutlet>) {
         const outlet = await Outlet.findByIdAndUpdate(id, data, { new: true });
         revalidatePath('/admin/outlets');
         return JSON.parse(JSON.stringify(outlet));
-    } catch (error) {
+    } catch {
         throw new Error('Failed to update outlet');
     }
 }
@@ -43,7 +43,7 @@ export async function deleteOutlet(id: string) {
     try {
         await Outlet.findByIdAndDelete(id);
         revalidatePath('/admin/outlets');
-    } catch (error) {
+    } catch {
         throw new Error('Failed to delete outlet');
     }
 }

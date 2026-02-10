@@ -21,8 +21,9 @@ export async function uploadOptionImageAction(formData: FormData) {
 
         const secureUrl = await uploadImage(file);
         return { success: true, url: secureUrl };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Upload Action Error:', error);
-        return { success: false, error: error.message || 'Upload failed' };
+        const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+        return { success: false, error: errorMessage };
     }
 }

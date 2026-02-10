@@ -7,9 +7,9 @@ export interface ICake extends Document {
     allowedFlavors: string[];
     allowedColors: string[];
     allowedDesigns: string[];
-    isActive: { type: Boolean, default: true };
+    isActive: boolean;
     outletIds: mongoose.Types.ObjectId[];
-    images: { type: [String], default: [] };
+    images: string[];
     description?: string;
 }
 

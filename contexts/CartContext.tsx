@@ -31,35 +31,31 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-    const [items, setItems] = useState<CartItem[]>([]);
-    const [isCartOpen, setCartOpen] = useState(false);
-
-    // Persistence
-    useEffect(() => {
-        // Hydrate from localStorage
-        const stored = localStorage.getItem('cake_shop_cart');
-        if (stored) {
-            try {
-                const parsedItems: CartItem[] = JSON.parse(stored);
-                // Recalculate prices and validate schema
-                // Note: Image Files are LOST. So we must recalculate price without image cost.
-                const validItems = parsedItems.map(item => ({
-                    ...item,
-                    imageFile: null, // Ensure file is null (can't be undefined for consistency usually, or undefined)
-                    price: calculatePrice(item.config, item.basePrice, item.priceMap) // Recalculate strict price using stored map
-                }));
-                setItems(validItems);
-            } catch (e) {
-                console.error("Failed to parse cart", e);
+    // Lazy initialization from localStorage
+    const [items, setItems] = useState<CartItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('cake_shop_cart');
+            if (stored) {
+                try {
+                    const parsedItems: CartItem[] = JSON.parse(stored);
+                    return parsedItems.map(item => ({
+                        ...item,
+                        imageFile: null,
+                        price: calculatePrice(item.config, item.basePrice, item.priceMap)
+                    }));
+                } catch (e) {
+                    console.error("Failed to parse cart", e);
+                }
             }
         }
-    }, []);
+        return [];
+    });
+    const [isCartOpen, setCartOpen] = useState(false);
 
+    // Persistence Effect (only saves)
     useEffect(() => {
-        // Save to localStorage
-        // Helper to strip File objects (JSON.stringify does this automatically for File/Blob usually by ignoring or empty object, 
-        // but explicit is better to avoid "structure" remaining without data)
         const itemsToSave = items.map(item => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { imageFile, ...rest } = item;
             return rest;
         });

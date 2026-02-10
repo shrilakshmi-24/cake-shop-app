@@ -1,4 +1,4 @@
-import { CakeConfig, SHAPES, FLAVORS, COLORS, DESIGNS } from '@/lib/types/customization';
+import { CakeConfig } from '@/lib/types/customization';
 
 const BASE_PRICE = 500;
 export const PRINT_IMAGE_COST = 50;
