@@ -33,6 +33,20 @@ export default function OutletGrid({ outlets }: OutletGridProps) {
     const [permissionDenied, setPermissionDenied] = useState(false);
 
     useEffect(() => {
+        // Optimistic: Check local storage first
+        try {
+            const cached = localStorage.getItem('user_coords');
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.lat && parsed.lng) {
+                    setUserLoc(parsed);
+                    setLoadingLoc(false);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to parse cached location", e);
+        }
+
         if (!navigator.geolocation) {
             setLoadingLoc(false);
             return;
@@ -40,16 +54,35 @@ export default function OutletGrid({ outlets }: OutletGridProps) {
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                setUserLoc({
+                const newLoc = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
-                });
+                };
+                setUserLoc(newLoc);
                 setLoadingLoc(false);
+                localStorage.setItem('user_coords', JSON.stringify(newLoc));
             },
             (error) => {
                 console.error("Error getting location", error);
-                setPermissionDenied(true);
-                setLoadingLoc(false);
+                // If we have cached location, don't override with error, just stop loading
+                setLoadingLoc(prev => {
+                    if (prev) { // If still loading (no cache hit or cache hit but we wanted fresh)
+                        // Actually if cache hit, we set loadingLoc false already. 
+                        // So this only runs if no cache or cache failed.
+                        return false;
+                    }
+                    return false;
+                });
+                // Only set permission denied if we have NO location at all
+                setUserLoc(prev => {
+                    if (!prev) setPermissionDenied(true);
+                    return prev;
+                });
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 300000 // Accept positions up to 5 mins old
             }
         );
     }, []);
@@ -65,13 +98,21 @@ export default function OutletGrid({ outlets }: OutletGridProps) {
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-3xl font-bold text-gray-900">Order from Nearby Outlets</h2>
                     {loadingLoc && <span className="text-sm text-gray-500 animate-pulse">Locating you...</span>}
-                    {permissionDenied && <span className="text-sm text-red-500">Location permission denied</span>}
+                    {permissionDenied && (
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-sm text-rose-500 hover:text-rose-600 underline"
+                        >
+                            Location required. Retry?
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {outlets.map((outlet: any) => {
                         let distance = null;
-                        let isDisabled = false;
+                        // Default to disabled until proven otherwise
+                        let isDisabled = true;
                         let distanceText = '';
 
                         if (userLoc) {
@@ -81,19 +122,14 @@ export default function OutletGrid({ outlets }: OutletGridProps) {
                                 outlet.coordinates.lat,
                                 outlet.coordinates.lng
                             );
-                            if (distance > 5) {
-                                isDisabled = true;
+                            if (distance <= 5) {
+                                isDisabled = false;
                             }
                             distanceText = `${distance.toFixed(1)} km`;
-                        } else if (!loadingLoc) {
-                            // If location failed or denied, what to do?
-                            // Default disable or enable?
-                            // User request: "disable those cards which are not around 5 km radius"
-                            // If we don't know radius, we can't be sure. 
-                            // Safety: Enable but warn? Or Disable? 
-                            // Swiggy disables if it can't deliver.
-                            // Let's disable and ask for location.
-                            isDisabled = true;
+                        } else if (loadingLoc) {
+                            // While loading and no cache, keep disabled but show specific text or just wait
+                            distanceText = '...';
+                        } else {
                             distanceText = 'Location required';
                         }
 
