@@ -2,7 +2,7 @@ import Outlet from '@/lib/db/models/Outlet';
 import { getDistanceFromLatLonInKm } from '@/lib/utils/geo';
 import dbConnect from '@/lib/db/connect';
 
-export async function findNearestOutlet(lat: number, lng: number, maxDistanceKm: number = 3) {
+export async function findNearestOutlet(lat: number, lng: number, maxDistanceKm: number = 5) {
     await dbConnect();
     const outlets = await Outlet.find({ isActive: true });
 

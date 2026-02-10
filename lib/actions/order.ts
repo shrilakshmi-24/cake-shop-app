@@ -50,11 +50,11 @@ export async function createOrder(formData: FormData) {
         let assignedOutletId = formData.get('outletId') as string | undefined;
 
         if (!assignedOutletId && lat && lng) {
-            const nearest = await findNearestOutlet(lat, lng, 3); // 3km radius
+            const nearest = await findNearestOutlet(lat, lng, 5); // 5km radius
             if (!nearest) {
                 return {
                     success: false,
-                    error: 'Sorry! We do not have any outlets within 3km of your location.'
+                    error: 'Sorry! We do not have any outlets within 5km of your location.'
                 };
             }
             assignedOutletId = nearest.outlet._id.toString();
